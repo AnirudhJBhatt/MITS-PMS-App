@@ -74,7 +74,7 @@ export default function App() {
 	const checkAppUpdate = async () => {
 		if (Platform.OS === 'web') return;
 		try {
-			const GITHUB_RELEASE_API = 'https://api.github.com/repos/AnirudhJBhatt/MITS-PMS/releases/latest';
+			const GITHUB_RELEASE_API = 'https://api.github.com/repos/AnirudhJBhatt/MITS-PMS-App/releases/latest';
 			const response = await fetch(GITHUB_RELEASE_API);
 			const data = await response.json();
 			
