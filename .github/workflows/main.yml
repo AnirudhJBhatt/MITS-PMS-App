@@ -1,0 +1,76 @@
+name: Build and Release Mobile App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-app:
+    name: Deploy Mobile App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 1. Detect if native configuration files changed
+      - name: Path Filter (Detect Native Changes)
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            native:
+              - 'app.json'
+              - 'package.json'
+              - 'package-lock.json'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+
+      - name: Setup EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      # FLOW A: Publish Over-The-Air (OTA) Update for JS-only changes
+      - name: Publish EAS Update (OTA)
+        if: steps.filter.outputs.native == 'false'
+        run: |
+          eas update --branch production --message "${{ github.event.head_commit.message }}"
+
+      # FLOW B: Build new APK and publish to GitHub Releases for Native Changes
+      - name: Build Android APK
+        if: steps.filter.outputs.native == 'true'
+        run: |
+          eas build --platform android --profile production --non-interactive --local=false
+
+      - name: Get Build Artifact
+        if: steps.filter.outputs.native == 'true'
+        id: get_artifact
+        run: |
+          BUILD_URL=$(eas build:list --platform android --status finished --limit 1 --json | jq -r '.[0].artifacts.buildUrl')
+          curl -L -o mits-pms-app.apk "$BUILD_URL"
+          echo "artifact_path=mits-pms-app.apk" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        if: steps.filter.outputs.native == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: mits-pms-app.apk
+          name: App Release - ${{ github.sha }}
+          tag_name: app-${{ github.sha }}
+          body: |
+            New native version of the app built automatically due to native package/configuration changes.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
