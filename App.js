@@ -77,7 +77,7 @@ export default function App() {
 			const GITHUB_RELEASE_API = 'https://api.github.com/repos/AnirudhJBhatt/MITS-PMS-App/releases/latest';
 			const response = await fetch(GITHUB_RELEASE_API);
 			const data = await response.json();
-			
+
 			if (data && data.tag_name) {
 				const latestVersion = data.tag_name.replace(/^v/, '');
 				const currentVersion = Constants.expoConfig?.version || Constants.manifest?.version;
@@ -88,8 +88,8 @@ export default function App() {
 						"A new native update is available. Please download and install the latest APK to keep using the application.",
 						[
 							{ text: "Later", style: "cancel" },
-							{ 
-								text: "Download APK", 
+							{
+								text: "Download APK",
 								onPress: () => {
 									const apkAsset = data.assets?.find(asset => asset.name.endsWith('.apk'));
 									if (apkAsset) {
@@ -97,7 +97,7 @@ export default function App() {
 									} else {
 										Linking.openURL(data.html_url);
 									}
-								} 
+								}
 							}
 						]
 					);
@@ -123,6 +123,7 @@ export default function App() {
 
 	const handleLoginSuccess = (userData) => {
 		setUser(userData);
+
 		setActiveTab('drives');
 	};
 
