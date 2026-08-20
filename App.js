@@ -123,7 +123,6 @@ export default function App() {
 
 	const handleLoginSuccess = (userData) => {
 		setUser(userData);
-
 		setActiveTab('drives');
 	};
 
