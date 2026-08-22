@@ -53,7 +53,7 @@ jobs:
       - name: Build Android APK
         if: steps.filter.outputs.native == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          eas build --platform android --profile production --non-interactive --local=false
+          eas build --platform android --profile production --non-interactive
 
       - name: Get Build Artifact
         if: steps.filter.outputs.native == 'true' || github.event_name == 'workflow_dispatch'
