@@ -10,6 +10,9 @@ jobs:
   deploy-app:
     name: Deploy Mobile App
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to create releases
+      
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
