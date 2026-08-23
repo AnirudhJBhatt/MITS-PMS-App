@@ -70,24 +70,18 @@ jobs:
           curl -L -o mits-pms-app.apk "$BUILD_URL"
           echo "artifact_path=mits-pms-app.apk" >> $GITHUB_OUTPUT
 
-      - name: Create GitHub Release
+      - name: Create version.json
         if: steps.filter.outputs.native == 'true' || github.event_name == 'workflow_dispatch'
-        uses: softprops/action-gh-release@v2
+        run: |
+          echo "{\"version\": \"${{ steps.version.outputs.version }}\", \"download_url\": \"${{ secrets.VPS_APP_DOMAIN }}/MITS-PMS/mits-pms-app.apk\"}" > version.json
+
+      - name: Upload APK and version.json to VPS
+        if: steps.filter.outputs.native == 'true' || github.event_name == 'workflow_dispatch'
+        uses: appleboy/scp-action@v0.1.7
         with:
-          files: mits-pms-app.apk
-
-          name: MITS PMS v${{ steps.version.outputs.version }}
-
-          tag_name: v${{ steps.version.outputs.version }}
-
-          body: |
-            MITS PMS Android App
-
-            Version: ${{ steps.version.outputs.version }}
-            Build ID: ${{ steps.build.outputs.build_id }}
-
-          draft: false
-          prerelease: false
-
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          source: "mits-pms-app.apk,version.json"
+          target: "${{ secrets.VPS_PATH }}"

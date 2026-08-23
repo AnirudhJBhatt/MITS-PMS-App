@@ -21,6 +21,7 @@ import {
 	Solway_700Bold,
 } from '@expo-google-fonts/solway';
 import Constants from 'expo-constants';
+import { getBaseUrl } from './config';
 
 import LoginScreen from './screens/LoginScreen';
 import DrivesScreen from './screens/DrivesScreen';
@@ -74,12 +75,15 @@ export default function App() {
 	const checkAppUpdate = async () => {
 		if (Platform.OS === 'web') return;
 		try {
-			const GITHUB_RELEASE_API = 'https://api.github.com/repos/AnirudhJBhatt/MITS-PMS-App/releases/latest';
-			const response = await fetch(GITHUB_RELEASE_API);
+			const baseUrl = await getBaseUrl();
+			const cleanBase = baseUrl.replace(/\/api\/?$/, '');
+			const VERSION_API = `${cleanBase}/version.json`;
+
+			const response = await fetch(VERSION_API);
 			const data = await response.json();
 
-			if (data && data.tag_name) {
-				const latestVersion = data.tag_name.replace(/^v/, '');
+			if (data && data.version) {
+				const latestVersion = data.version;
 				const currentVersion = Constants.expoConfig?.version || Constants.manifest?.version;
 
 				if (latestVersion && currentVersion && latestVersion !== currentVersion) {
@@ -91,11 +95,8 @@ export default function App() {
 							{
 								text: "Download APK",
 								onPress: () => {
-									const apkAsset = data.assets?.find(asset => asset.name.endsWith('.apk'));
-									if (apkAsset) {
-										Linking.openURL(apkAsset.browser_download_url);
-									} else {
-										Linking.openURL(data.html_url);
+									if (data.download_url) {
+										Linking.openURL(data.download_url);
 									}
 								}
 							}
