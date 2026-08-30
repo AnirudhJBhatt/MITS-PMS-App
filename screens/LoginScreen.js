@@ -197,7 +197,7 @@ export default function LoginScreen({ onLoginSuccess }) {
             placeholderTextColor="#94a3b8"
             value={username}
             onChangeText={(txt) => { setUsername(txt); setErrorMessage(''); }}
-            autoCapitalize="none"
+            autoCapitalize="characters"
           />
 
           <Text style={styles.label}>Password</Text>

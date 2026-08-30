@@ -174,7 +174,7 @@ export default function SettingsScreen({ onLogout }) {
 
         {/* Change Password Card */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>🔒 Change Password</Text>
+          <Text style={styles.cardTitle}>Change Password</Text>
 
           <Text style={styles.label}>Current Password</Text>
           <View style={styles.passwordContainer}>

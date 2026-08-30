@@ -75,10 +75,10 @@ export default function DrivesScreen() {
 
       if (cachedIdsString !== null) {
         const cachedIds = JSON.parse(cachedIdsString);
-        
+
         // Find drives that are in fetchedIds but not in cachedIds
         const newDrives = fetchedDrives.filter(d => !cachedIds.includes(d.D_ID.toString()));
-        
+
         if (newDrives.length > 0) {
           for (const drive of newDrives) {
             await Notifications.scheduleNotificationAsync({
@@ -92,7 +92,7 @@ export default function DrivesScreen() {
           }
         }
       }
-      
+
       // Update cached IDs with the latest fetched list
       await AsyncStorage.setItem('seen_drive_ids', JSON.stringify(fetchedIds));
     } catch (error) {
@@ -109,11 +109,11 @@ export default function DrivesScreen() {
       const response = await axios.get(`${baseUrl}${API_ENDPOINTS.DRIVES}?Stud_ID=${studId}`);
 
       let data = response.data;
-      console.log(data);
+
       if (typeof data === 'string') {
         try { data = JSON.parse(data); } catch (e) { }
       }
-
+      console.log(data);
       if (data && data.status === 'success') {
         const fetchedDrives = data.data || [];
         await checkForNewDrives(fetchedDrives);

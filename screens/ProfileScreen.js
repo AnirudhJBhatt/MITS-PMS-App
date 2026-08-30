@@ -42,7 +42,7 @@ export default function ProfileScreen() {
       if (typeof data === 'string') {
         try { data = JSON.parse(data); } catch (e) { }
       }
-
+      
       if (data && data.status === 'success') {
         setProfile(data.data);
       } else {
@@ -99,7 +99,7 @@ export default function ProfileScreen() {
             <Text style={styles.badgeText}>{profile.Stud_Course}</Text>
           </View>
           <View style={styles.batchBadge}>
-            <Text style={styles.badgeText}>{profile.Stud_Branch || profile.Stud_Branch}</Text>
+            <Text style={styles.badgeText}>{profile.Prog_Name}</Text>
           </View>
         </View>
       </View>

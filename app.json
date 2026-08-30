@@ -27,7 +27,7 @@
       "url": "https://u.expo.dev/cef14b44-ece3-41f7-88c2-14480f1a1697"
     },
     "runtimeVersion": {
-      "policy": "appVersion"
+      "policy": "appVersion"  
     },
     "web": {
       "favicon": "./assets/favicon.png"
