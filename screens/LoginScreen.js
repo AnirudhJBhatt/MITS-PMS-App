@@ -29,7 +29,7 @@ const showAlert = (title, message) => {
 
 export default function LoginScreen({ onLoginSuccess }) {
   const { theme, colors } = useTheme();
-  
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -80,7 +80,6 @@ export default function LoginScreen({ onLoginSuccess }) {
     try {
       const baseUrl = await getBaseUrl();
       const endpoint = `${baseUrl}${API_ENDPOINTS.LOGIN}`;
-      console.log("Endpoint: ", endpoint);
 
       const response = await axios.post(
         endpoint,
@@ -136,7 +135,7 @@ export default function LoginScreen({ onLoginSuccess }) {
       const baseUrl = await getBaseUrl();
       // Replace /api with /Login/forgot-password.php
       const endpoint = baseUrl.replace(/\/api\/?$/, '/Login/forgot-password.php');
-      
+
       const formData = new FormData();
       formData.append('user_id', forgotUserId.trim());
 
@@ -145,7 +144,7 @@ export default function LoginScreen({ onLoginSuccess }) {
         body: formData,
       });
       const data = await response.json();
-      
+
       if (data.status === 'success') {
         showAlert('Email Sent!', data.message || 'Password reset link sent to your email.');
         setForgotModalVisible(false);
@@ -169,11 +168,11 @@ export default function LoginScreen({ onLoginSuccess }) {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         {/* Header Config Button */}
-        <View style={styles.topBar}>
+        {/* <View style={styles.topBar}>
           <TouchableOpacity style={[styles.configBtn, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={() => setSettingsVisible(true)}>
             <Text style={[styles.configBtnText, { color: colors.text }]}>⚙️ Server IP</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         <View style={[styles.card, { backgroundColor: colors.card, shadowColor: theme === 'dark' ? '#000' : '#000' }]}>
           {/* Branding Logo & Title */}
