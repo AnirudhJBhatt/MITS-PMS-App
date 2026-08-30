@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -131,18 +132,16 @@ export default function LoginScreen({ onLoginSuccess }) {
           </TouchableOpacity>
         </View>
 
-        {/* Branding Logo & Title */}
-        <View style={styles.brandContainer}>
-          <View style={styles.logoBadge}>
-            <Text style={styles.logoText}>MITS</Text>
-          </View>
-          <Text style={styles.title}>MITS PMS</Text>
-          <Text style={styles.subtitle}>Placement Management System</Text>
-        </View>
-
-        {/* Login Card Matching login.php */}
         <View style={styles.card}>
-          <Text style={styles.cardHeader}>Student Login</Text>
+          {/* Branding Logo & Title */}
+          <View style={styles.brandContainer}>
+            <Image
+              source={require('../assets/Mits Logo.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.systemTitle}>Placement Management System</Text>
+          </View>
 
           {/* Inline Error Banner */}
           {!!errorMessage && (
@@ -151,21 +150,21 @@ export default function LoginScreen({ onLoginSuccess }) {
             </View>
           )}
 
-          <Text style={styles.label}>Username / Roll No</Text>
+          <Text style={styles.label}>Username</Text>
           <TextInput
             style={styles.input}
             placeholder="e.g. 23MCA08"
             placeholderTextColor="#94a3b8"
             value={username}
             onChangeText={(txt) => { setUsername(txt); setErrorMessage(''); }}
-            autoCapitalize="characters"
+            autoCapitalize="none"
           />
 
           <Text style={styles.label}>Password</Text>
           <View style={styles.passwordContainer}>
             <TextInput
               style={styles.passwordInput}
-              placeholder="Enter your password"
+              placeholder="Password"
               placeholderTextColor="#94a3b8"
               value={password}
               onChangeText={(txt) => { setPassword(txt); setErrorMessage(''); }}
@@ -175,7 +174,7 @@ export default function LoginScreen({ onLoginSuccess }) {
               style={styles.eyeBtn}
               onPress={() => setShowPassword(!showPassword)}
             >
-              <Ionicons name={showPassword ? "eye" : "eye-off"} size={20} color="#64748b" />
+              <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#64748b" />
             </TouchableOpacity>
           </View>
 
@@ -187,12 +186,10 @@ export default function LoginScreen({ onLoginSuccess }) {
             {loading ? (
               <ActivityIndicator color="#ffffff" />
             ) : (
-              <Text style={styles.loginBtnText}>LOGIN</Text>
+              <Text style={styles.loginBtnText}>Login</Text>
             )}
           </TouchableOpacity>
         </View>
-
-        <Text style={styles.footerText}>Muthoot Institute of Technology & Science</Text>
       </ScrollView>
 
       {/* Server IP Config Modal */}
@@ -242,24 +239,19 @@ const styles = StyleSheet.create({
   configBtn: { backgroundColor: '#ffffff', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1, borderColor: '#cbd5e1' },
   configBtnText: { color: '#334155', fontSize: 13, fontWeight: '600' },
   brandContainer: { alignItems: 'center', marginBottom: 25 },
-  logoBadge: { backgroundColor: '#d1202d', width: 70, height: 70, borderRadius: 35, justifyContent: 'center', alignItems: 'center', marginBottom: 12, elevation: 4 },
-  logoText: { color: '#ffffff', fontWeight: '900', fontSize: 20, letterSpacing: 1 },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#d1202d', letterSpacing: 0.5 },
-  subtitle: { fontSize: 14, color: '#475569', marginTop: 2 },
-  card: { backgroundColor: '#ffffff', borderRadius: 12, padding: 24, borderWidth: 1, borderColor: '#e2e8f0', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 6 },
-  cardHeader: { fontSize: 20, fontWeight: 'bold', color: '#333333', marginBottom: 16, textAlign: 'center' },
+  logoImage: { width: 280, height: 100, marginBottom: 15 },
+  systemTitle: { fontSize: 18, fontWeight: 'bold', color: '#d1202d', textAlign: 'center' },
+  card: { backgroundColor: '#ffffff', borderRadius: 8, padding: 30, width: '100%', maxWidth: 400, alignSelf: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 4 },
   errorBanner: { backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fca5a5', paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, marginBottom: 16 },
   errorBannerText: { color: '#991b1b', fontSize: 13, fontWeight: '600' },
   label: { color: '#475569', fontSize: 13, fontWeight: '600', marginBottom: 6 },
-  input: { backgroundColor: '#f8fafc', color: '#1e293b', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 11, fontSize: 15, borderWidth: 1, borderColor: '#cbd5e1', marginBottom: 16 },
-  passwordContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f8fafc', borderRadius: 8, borderWidth: 1, borderColor: '#cbd5e1', marginBottom: 24 },
-  passwordInput: { flex: 1, color: '#1e293b', paddingHorizontal: 14, paddingVertical: 11, fontSize: 15 },
+  input: { backgroundColor: '#ffffff', color: '#1e293b', borderRadius: 6, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, borderWidth: 1, borderColor: '#cbd5e1', marginBottom: 20 },
+  passwordContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', borderRadius: 6, borderWidth: 1, borderColor: '#cbd5e1', marginBottom: 24 },
+  passwordInput: { flex: 1, color: '#1e293b', paddingHorizontal: 14, paddingVertical: 12, fontSize: 15 },
   eyeBtn: { paddingHorizontal: 14 },
-  eyeText: { fontSize: 18 },
-  loginBtn: { backgroundColor: '#198754', borderRadius: 8, paddingVertical: 13, alignItems: 'center', elevation: 2 },
+  loginBtn: { backgroundColor: '#198754', borderRadius: 6, paddingVertical: 14, alignItems: 'center', elevation: 2, marginBottom: 10 },
   loginBtnDisabled: { opacity: 0.6 },
-  loginBtnText: { color: '#ffffff', fontSize: 16, fontWeight: 'bold', letterSpacing: 0.5 },
-  footerText: { textAlign: 'center', color: '#64748b', fontSize: 12, marginTop: 30 },
+  loginBtnText: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
   modalCard: { backgroundColor: '#ffffff', borderRadius: 14, padding: 24, borderWidth: 1, borderColor: '#e2e8f0' },
   modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#1e293b', marginBottom: 6 },
