@@ -33,6 +33,11 @@ export default function LoginScreen({ onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Forgot Password Modal Settings
+  const [forgotModalVisible, setForgotModalVisible] = useState(false);
+  const [forgotUserId, setForgotUserId] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+
   // Server IP Modal Settings
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [serverUrl, setServerUrl] = useState('');
@@ -118,6 +123,41 @@ export default function LoginScreen({ onLoginSuccess }) {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!forgotUserId.trim()) {
+      showAlert('Error', 'Please enter your User ID.');
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const baseUrl = await getBaseUrl();
+      // Replace /api with /Login/forgot-password.php
+      const endpoint = baseUrl.replace(/\/api\/?$/, '/Login/forgot-password.php');
+      
+      const formData = new FormData();
+      formData.append('user_id', forgotUserId.trim());
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        showAlert('Email Sent!', data.message || 'Password reset link sent to your email.');
+        setForgotModalVisible(false);
+        setForgotUserId('');
+      } else {
+        showAlert('Request Failed', data.message || 'Could not send reset link.');
+      }
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      showAlert('Error', 'Could not connect to the server. Please check your IP settings.');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       enabled={Platform.OS !== 'web'}
@@ -189,6 +229,13 @@ export default function LoginScreen({ onLoginSuccess }) {
               <Text style={styles.loginBtnText}>Login</Text>
             )}
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.forgotBtn}
+            onPress={() => setForgotModalVisible(true)}
+          >
+            <Text style={styles.forgotBtnText}>Forgot password?</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -228,6 +275,48 @@ export default function LoginScreen({ onLoginSuccess }) {
           </View>
         </View>
       </Modal>
+
+      {/* Forgot Password Modal */}
+      <Modal visible={forgotModalVisible} animationType="fade" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Reset Password</Text>
+            <Text style={styles.modalSub}>
+              Enter your User ID to receive a password reset link at your registered email address.
+            </Text>
+
+            <Text style={styles.label}>User ID (Username)</Text>
+            <TextInput
+              style={styles.input}
+              value={forgotUserId}
+              onChangeText={setForgotUserId}
+              placeholder="e.g. 23MCA08"
+              autoCapitalize="none"
+            />
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.cancelBtn]}
+                onPress={() => setForgotModalVisible(false)}
+              >
+                <Text style={styles.cancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.saveBtn, forgotLoading && styles.loginBtnDisabled]}
+                onPress={handleForgotPassword}
+                disabled={forgotLoading}
+              >
+                {forgotLoading ? (
+                  <ActivityIndicator color="#ffffff" size="small" />
+                ) : (
+                  <Text style={styles.saveBtnText}>Send Reset Link</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -252,6 +341,8 @@ const styles = StyleSheet.create({
   loginBtn: { backgroundColor: '#198754', borderRadius: 6, paddingVertical: 14, alignItems: 'center', elevation: 2, marginBottom: 10 },
   loginBtnDisabled: { opacity: 0.6 },
   loginBtnText: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
+  forgotBtn: { alignItems: 'center', marginTop: 5, paddingVertical: 5 },
+  forgotBtnText: { color: '#64748b', fontSize: 14 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
   modalCard: { backgroundColor: '#ffffff', borderRadius: 14, padding: 24, borderWidth: 1, borderColor: '#e2e8f0' },
   modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#1e293b', marginBottom: 6 },
