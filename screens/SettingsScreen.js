@@ -10,11 +10,13 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Switch,
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { getBaseUrl, saveBaseUrl, API_ENDPOINTS } from '../config';
+import { useTheme } from '../ThemeContext';
 
 const showAlert = (title, message) => {
   if (Platform.OS === 'web') {
@@ -25,6 +27,8 @@ const showAlert = (title, message) => {
 };
 
 export default function SettingsScreen({ onLogout }) {
+  const { theme, toggleTheme, colors } = useTheme();
+
   // Server Config State
   const [serverUrl, setServerUrl] = useState('');
   const [savingServer, setSavingServer] = useState(false);
@@ -139,12 +143,28 @@ export default function SettingsScreen({ onLogout }) {
     <KeyboardAvoidingView
       enabled={Platform.OS !== 'web'}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.scrollPadding}>
-        {/* Web Dashboard Sub-Header (.dashboard-header #343a40) */}
-        <View style={styles.dashboardHeader}>
-          <Text style={styles.dashboardTitle}>Settings & Security</Text>
+        {/* Web Dashboard Sub-Header */}
+        <View style={[styles.dashboardHeader, { backgroundColor: colors.headerBackground }]}>
+          <Text style={[styles.dashboardTitle, { color: colors.headerText }]}>Settings & Security</Text>
+        </View>
+
+        {/* Appearance Card */}
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>Appearance</Text>
+              <Text style={[styles.cardSub, { color: colors.textSub, marginBottom: 0 }]}>Toggle Dark Mode</Text>
+            </View>
+            <Switch
+              value={theme === 'dark'}
+              onValueChange={toggleTheme}
+              trackColor={{ false: '#767577', true: colors.primary }}
+              thumbColor={'#ffffff'}
+            />
+          </View>
         </View>
 
         {/* Server IP Config Card */}
@@ -173,15 +193,15 @@ export default function SettingsScreen({ onLogout }) {
         </View> */}
 
         {/* Change Password Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Change Password</Text>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Change Password</Text>
 
-          <Text style={styles.label}>Current Password</Text>
-          <View style={styles.passwordContainer}>
+          <Text style={[styles.label, { color: colors.textSub }]}>Current Password</Text>
+          <View style={[styles.passwordContainer, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder }]}>
             <TextInput
-              style={styles.passwordInput}
+              style={[styles.passwordInput, { color: colors.text }]}
               placeholder="Enter current password"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.cardSubText}
               secureTextEntry={!showOldPassword}
               value={oldPassword}
               onChangeText={setOldPassword}
@@ -190,16 +210,16 @@ export default function SettingsScreen({ onLogout }) {
               style={styles.eyeBtn}
               onPress={() => setShowOldPassword(!showOldPassword)}
             >
-              <Ionicons name={showOldPassword ? "eye" : "eye-off"} size={20} color="#64748b" />
+              <Ionicons name={showOldPassword ? "eye" : "eye-off"} size={20} color={colors.cardSubText} />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.label}>New Password</Text>
-          <View style={styles.passwordContainer}>
+          <Text style={[styles.label, { color: colors.textSub }]}>New Password</Text>
+          <View style={[styles.passwordContainer, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder }]}>
             <TextInput
-              style={styles.passwordInput}
+              style={[styles.passwordInput, { color: colors.text }]}
               placeholder="Enter new password"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.cardSubText}
               secureTextEntry={!showNewPassword}
               value={newPassword}
               onChangeText={setNewPassword}
@@ -208,16 +228,16 @@ export default function SettingsScreen({ onLogout }) {
               style={styles.eyeBtn}
               onPress={() => setShowNewPassword(!showNewPassword)}
             >
-              <Ionicons name={showNewPassword ? "eye" : "eye-off"} size={20} color="#64748b" />
+              <Ionicons name={showNewPassword ? "eye" : "eye-off"} size={20} color={colors.cardSubText} />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.label}>Confirm New Password</Text>
-          <View style={styles.passwordContainer}>
+          <Text style={[styles.label, { color: colors.textSub }]}>Confirm New Password</Text>
+          <View style={[styles.passwordContainer, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder }]}>
             <TextInput
-              style={styles.passwordInput}
+              style={[styles.passwordInput, { color: colors.text }]}
               placeholder="Confirm new password"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.cardSubText}
               secureTextEntry={!showConfirmPassword}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
@@ -226,12 +246,12 @@ export default function SettingsScreen({ onLogout }) {
               style={styles.eyeBtn}
               onPress={() => setShowConfirmPassword(!showConfirmPassword)}
             >
-              <Ionicons name={showConfirmPassword ? "eye" : "eye-off"} size={20} color="#64748b" />
+              <Ionicons name={showConfirmPassword ? "eye" : "eye-off"} size={20} color={colors.cardSubText} />
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity
-            style={[styles.updateBtn, updatingPassword && styles.btnDisabled]}
+            style={[styles.updateBtn, { backgroundColor: colors.success }, updatingPassword && styles.btnDisabled]}
             onPress={handleChangePassword}
             disabled={updatingPassword}
           >
@@ -240,11 +260,11 @@ export default function SettingsScreen({ onLogout }) {
         </View>
 
         {/* Logout Button */}
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogoutConfirm}>
+        <TouchableOpacity style={[styles.logoutBtn, { backgroundColor: colors.danger }]} onPress={handleLogoutConfirm}>
           <Text style={styles.logoutText}> LOGOUT</Text>
         </TouchableOpacity>
 
-        <Text style={styles.versionText}>MITS PMS Student Mobile App v1.0.0</Text>
+        <Text style={[styles.versionText, { color: colors.textSub }]}>MITS PMS Student Mobile App v1.0.0</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

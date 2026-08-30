@@ -17,6 +17,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { getBaseUrl, API_ENDPOINTS } from '../config';
+import { useTheme } from '../ThemeContext';
 
 const PACKAGE_LABELS = { '0': 'Low Package', '1': 'Medium Package', '2': 'High Package' };
 
@@ -29,6 +30,8 @@ const showAlert = (title, message) => {
 };
 
 export default function DrivesScreen() {
+  const { theme, colors } = useTheme();
+
   const [drives, setDrives] = useState([]);
   const [filteredDrives, setFilteredDrives] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -113,7 +116,7 @@ export default function DrivesScreen() {
       if (typeof data === 'string') {
         try { data = JSON.parse(data); } catch (e) { }
       }
-      console.log(data);
+
       if (data && data.status === 'success') {
         const fetchedDrives = data.data || [];
         await checkForNewDrives(fetchedDrives);
@@ -195,7 +198,7 @@ export default function DrivesScreen() {
 
   const renderDriveItem = ({ item }) => (
     <TouchableOpacity
-      style={styles.card}
+      style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
       activeOpacity={0.85}
       onPress={() => setSelectedDrive(item)}
     >
@@ -210,52 +213,52 @@ export default function DrivesScreen() {
         </View>
       </View>
 
-      <Text style={styles.driveTitle}>{item.D_Name}</Text>
-      <Text style={styles.driveRole}>Role: <Text style={{ fontWeight: '600', color: '#212529' }}>{item.Role}</Text></Text>
+      <Text style={[styles.driveTitle, { color: colors.text }]}>{item.D_Name}</Text>
+      <Text style={[styles.driveRole, { color: colors.textSub }]}>Role: <Text style={{ fontWeight: '600', color: colors.text }}>{item.Role}</Text></Text>
 
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
       <View style={styles.detailsRow}>
-        <Text style={styles.detailText}>Min CGPA: <Text style={styles.detailHighlight}>{item.CGPA}</Text></Text>
-        <Text style={styles.detailText}>Deadline: <Text style={styles.dateHighlight}>{item.D_Date}</Text></Text>
+        <Text style={[styles.detailText, { color: colors.cardSubText }]}>Min CGPA: <Text style={[styles.detailHighlight, { color: colors.text }]}>{item.CGPA}</Text></Text>
+        <Text style={[styles.detailText, { color: colors.cardSubText }]}>Deadline: <Text style={[styles.dateHighlight, { color: colors.primary }]}>{item.D_Date}</Text></Text>
       </View>
     </TouchableOpacity>
   );
 
   if (loading) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#d1202d" />
-        <Text style={styles.loadingText}>Loading Campus Drives...</Text>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.textSub }]}>Loading Campus Drives...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {/* Web Dashboard Sub-Header (.dashboard-header #343a40) */}
-      <View style={styles.dashboardHeader}>
-        <Text style={styles.dashboardTitle}>Campus Drives</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Web Dashboard Sub-Header */}
+      <View style={[styles.dashboardHeader, { backgroundColor: colors.headerBackground }]}>
+        <Text style={[styles.dashboardTitle, { color: colors.headerText }]}>Campus Drives</Text>
       </View>
 
       {/* Stat Bar */}
-      <View style={styles.statsContainer}>
+      <View style={[styles.statsContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <View style={styles.statBox}>
           <Text style={styles.statNumber}>{drives.length}</Text>
-          <Text style={styles.statLabel}>Eligible Drives</Text>
+          <Text style={[styles.statLabel, { color: colors.cardSubText }]}>Eligible Drives</Text>
         </View>
-        <View style={[styles.statBox, styles.borderLeft]}>
-          <Text style={[styles.statNumber, { color: '#198754' }]}>{appliedCount}</Text>
-          <Text style={styles.statLabel}>Applied Drives</Text>
+        <View style={[styles.statBox, styles.borderLeft, { borderLeftColor: colors.border }]}>
+          <Text style={[styles.statNumber, { color: colors.success }]}>{appliedCount}</Text>
+          <Text style={[styles.statLabel, { color: colors.cardSubText }]}>Applied Drives</Text>
         </View>
       </View>
 
       {/* Search Bar */}
       <View style={styles.searchBar}>
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.text }]}
           placeholder="Search by drive, company or role..."
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor={colors.cardSubText}
           value={searchQuery}
           onChangeText={handleSearch}
         />
@@ -268,13 +271,13 @@ export default function DrivesScreen() {
         renderItem={renderDriveItem}
         contentContainerStyle={styles.listPadding}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#d1202d']} tintColor="#d1202d" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>🎓</Text>
-            <Text style={styles.emptyTitle}>No Campus Drives Found</Text>
-            <Text style={styles.emptySub}>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>No Campus Drives Found</Text>
+            <Text style={[styles.emptySub, { color: colors.textSub }]}>
               {searchQuery ? 'No drives match your search.' : 'Check back later for new placement opportunities.'}
             </Text>
           </View>
@@ -285,62 +288,62 @@ export default function DrivesScreen() {
       {selectedDrive && (
         <Modal visible={true} animationType="slide" transparent={true}>
           <View style={styles.modalOverlay}>
-            <View style={styles.modalCard}>
+            <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <ScrollView>
                 <View style={styles.modalHeader}>
-                  <Text style={styles.modalCompany}>{selectedDrive.C_Name}</Text>
+                  <Text style={[styles.modalCompany, { color: colors.primary }]}>{selectedDrive.C_Name}</Text>
                   <TouchableOpacity onPress={() => setSelectedDrive(null)}>
-                    <Text style={styles.closeBtn}>✕</Text>
+                    <Text style={[styles.closeBtn, { color: colors.textSub }]}>✕</Text>
                   </TouchableOpacity>
                 </View>
 
-                <Text style={styles.modalDriveTitle}>{selectedDrive.D_Name}</Text>
-                <Text style={styles.modalRole}>Role: {selectedDrive.Role}</Text>
+                <Text style={[styles.modalDriveTitle, { color: colors.text }]}>{selectedDrive.D_Name}</Text>
+                <Text style={[styles.modalRole, { color: colors.textSub }]}>Role: {selectedDrive.Role}</Text>
 
-                <View style={styles.modalDivider} />
+                <View style={[styles.modalDivider, { backgroundColor: colors.border }]} />
 
-                <Text style={styles.sectionHeader}>Eligibility Requirements</Text>
+                <Text style={[styles.sectionHeader, { color: colors.text }]}>Eligibility Requirements</Text>
 
                 <View style={styles.criteriaGrid}>
-                  <View style={styles.criteriaItem}>
-                    <Text style={styles.criteriaLabel}>10th Marks</Text>
-                    <Text style={styles.criteriaVal}>{selectedDrive.Marks_10th}%</Text>
+                  <View style={[styles.criteriaItem, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+                    <Text style={[styles.criteriaLabel, { color: colors.textSub }]}>10th Marks</Text>
+                    <Text style={[styles.criteriaVal, { color: colors.text }]}>{selectedDrive.Marks_10th}%</Text>
                   </View>
-                  <View style={styles.criteriaItem}>
-                    <Text style={styles.criteriaLabel}>12th Marks</Text>
-                    <Text style={styles.criteriaVal}>{selectedDrive.Marks_12th}%</Text>
+                  <View style={[styles.criteriaItem, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+                    <Text style={[styles.criteriaLabel, { color: colors.textSub }]}>12th Marks</Text>
+                    <Text style={[styles.criteriaVal, { color: colors.text }]}>{selectedDrive.Marks_12th}%</Text>
                   </View>
-                  <View style={styles.criteriaItem}>
-                    <Text style={styles.criteriaLabel}>UG Marks</Text>
-                    <Text style={styles.criteriaVal}>{selectedDrive.Marks_UG}%</Text>
+                  <View style={[styles.criteriaItem, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+                    <Text style={[styles.criteriaLabel, { color: colors.textSub }]}>UG Marks</Text>
+                    <Text style={[styles.criteriaVal, { color: colors.text }]}>{selectedDrive.Marks_UG}%</Text>
                   </View>
-                  <View style={styles.criteriaItem}>
-                    <Text style={styles.criteriaLabel}>Min CGPA</Text>
-                    <Text style={styles.criteriaVal}>{selectedDrive.CGPA}</Text>
+                  <View style={[styles.criteriaItem, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+                    <Text style={[styles.criteriaLabel, { color: colors.textSub }]}>Min CGPA</Text>
+                    <Text style={[styles.criteriaVal, { color: colors.text }]}>{selectedDrive.CGPA}</Text>
                   </View>
-                  <View style={styles.criteriaItem}>
-                    <Text style={styles.criteriaLabel}>Max Backlogs</Text>
-                    <Text style={styles.criteriaVal}>{selectedDrive.Backlogs}</Text>
+                  <View style={[styles.criteriaItem, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+                    <Text style={[styles.criteriaLabel, { color: colors.textSub }]}>Max Backlogs</Text>
+                    <Text style={[styles.criteriaVal, { color: colors.text }]}>{selectedDrive.Backlogs}</Text>
                   </View>
-                  <View style={styles.criteriaItem}>
-                    <Text style={styles.criteriaLabel}>Package Tier</Text>
-                    <Text style={styles.criteriaVal}>{PACKAGE_LABELS[selectedDrive.D_Package] || 'Standard'}</Text>
+                  <View style={[styles.criteriaItem, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+                    <Text style={[styles.criteriaLabel, { color: colors.textSub }]}>Package Tier</Text>
+                    <Text style={[styles.criteriaVal, { color: colors.text }]}>{PACKAGE_LABELS[selectedDrive.D_Package] || 'Standard'}</Text>
                   </View>
                 </View>
 
-                <View style={styles.deadlineBox}>
-                  <Text style={styles.deadlineTitle}>Last Date to Apply</Text>
-                  <Text style={styles.deadlineVal}>{selectedDrive.D_Date}</Text>
+                <View style={[styles.deadlineBox, { borderColor: colors.primary, backgroundColor: theme === 'dark' ? 'rgba(239,68,68,0.1)' : 'rgba(209, 32, 45, 0.08)' }]}>
+                  <Text style={[styles.deadlineTitle, { color: colors.primary }]}>Last Date to Apply</Text>
+                  <Text style={[styles.deadlineVal, { color: colors.primary }]}>{selectedDrive.D_Date}</Text>
                 </View>
 
                 {/* Apply Button */}
                 {selectedDrive.isApplied ? (
-                  <View style={styles.appliedBanner}>
-                    <Text style={styles.appliedBannerText}>✓ Application Submitted</Text>
+                  <View style={[styles.appliedBanner, { backgroundColor: theme === 'dark' ? 'rgba(34,197,94,0.15)' : 'rgba(25, 135, 84, 0.15)', borderColor: colors.success }]}>
+                    <Text style={[styles.appliedBannerText, { color: colors.success }]}>✓ Application Submitted</Text>
                   </View>
                 ) : (
                   <TouchableOpacity
-                    style={[styles.applyActionBtn, applying && styles.btnDisabled]}
+                    style={[styles.applyActionBtn, { backgroundColor: colors.success }, applying && styles.btnDisabled]}
                     onPress={() => handleApply(selectedDrive)}
                     disabled={applying}
                   >

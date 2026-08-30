@@ -17,6 +17,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { getBaseUrl, saveBaseUrl, API_ENDPOINTS } from '../config';
+import { useTheme } from '../ThemeContext';
 
 const showAlert = (title, message) => {
   if (Platform.OS === 'web') {
@@ -27,6 +28,8 @@ const showAlert = (title, message) => {
 };
 
 export default function LoginScreen({ onLoginSuccess }) {
+  const { theme, colors } = useTheme();
+  
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -162,17 +165,17 @@ export default function LoginScreen({ onLoginSuccess }) {
     <KeyboardAvoidingView
       enabled={Platform.OS !== 'web'}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.flexContainer}
+      style={[styles.flexContainer, { backgroundColor: theme === 'dark' ? colors.background : '#eeeeee' }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         {/* Header Config Button */}
         <View style={styles.topBar}>
-          <TouchableOpacity style={styles.configBtn} onPress={() => setSettingsVisible(true)}>
-            <Text style={styles.configBtnText}>⚙️ Server IP</Text>
+          <TouchableOpacity style={[styles.configBtn, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={() => setSettingsVisible(true)}>
+            <Text style={[styles.configBtnText, { color: colors.text }]}>⚙️ Server IP</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.card, shadowColor: theme === 'dark' ? '#000' : '#000' }]}>
           {/* Branding Logo & Title */}
           <View style={styles.brandContainer}>
             <Image
@@ -185,27 +188,27 @@ export default function LoginScreen({ onLoginSuccess }) {
 
           {/* Inline Error Banner */}
           {!!errorMessage && (
-            <View style={styles.errorBanner}>
-              <Text style={styles.errorBannerText}>⚠️ {errorMessage}</Text>
+            <View style={[styles.errorBanner, { backgroundColor: theme === 'dark' ? '#451a1a' : '#fef2f2', borderColor: theme === 'dark' ? '#7f1d1d' : '#fca5a5' }]}>
+              <Text style={[styles.errorBannerText, { color: theme === 'dark' ? '#fca5a5' : '#991b1b' }]}>⚠️ {errorMessage}</Text>
             </View>
           )}
 
-          <Text style={styles.label}>Username</Text>
+          <Text style={[styles.label, { color: colors.textSub }]}>Username</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.text }]}
             placeholder="e.g. 23MCA08"
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={colors.cardSubText}
             value={username}
             onChangeText={(txt) => { setUsername(txt); setErrorMessage(''); }}
             autoCapitalize="characters"
           />
 
-          <Text style={styles.label}>Password</Text>
-          <View style={styles.passwordContainer}>
+          <Text style={[styles.label, { color: colors.textSub }]}>Password</Text>
+          <View style={[styles.passwordContainer, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder }]}>
             <TextInput
-              style={styles.passwordInput}
+              style={[styles.passwordInput, { color: colors.text }]}
               placeholder="Password"
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor={colors.cardSubText}
               value={password}
               onChangeText={(txt) => { setPassword(txt); setErrorMessage(''); }}
               secureTextEntry={!showPassword}
@@ -214,12 +217,12 @@ export default function LoginScreen({ onLoginSuccess }) {
               style={styles.eyeBtn}
               onPress={() => setShowPassword(!showPassword)}
             >
-              <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color="#64748b" />
+              <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color={colors.cardSubText} />
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity
-            style={[styles.loginBtn, loading && styles.loginBtnDisabled]}
+            style={[styles.loginBtn, { backgroundColor: colors.success }, loading && styles.loginBtnDisabled]}
             onPress={handleLogin}
             disabled={loading}
           >
@@ -234,7 +237,7 @@ export default function LoginScreen({ onLoginSuccess }) {
             style={styles.forgotBtn}
             onPress={() => setForgotModalVisible(true)}
           >
-            <Text style={styles.forgotBtnText}>Forgot password?</Text>
+            <Text style={[styles.forgotBtnText, { color: colors.textSub }]}>Forgot password?</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -242,27 +245,28 @@ export default function LoginScreen({ onLoginSuccess }) {
       {/* Server IP Config Modal */}
       <Modal visible={settingsVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Configure API Server URL</Text>
-            <Text style={styles.modalSub}>
+          <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Configure API Server URL</Text>
+            <Text style={[styles.modalSub, { color: colors.textSub }]}>
               Enter your computer's local IP address running XAMPP. Do not use localhost on physical devices.
             </Text>
 
-            <Text style={styles.label}>API Base URL</Text>
+            <Text style={[styles.label, { color: colors.textSub }]}>API Base URL</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.text }]}
               value={serverUrl}
               onChangeText={setServerUrl}
               placeholder="http://192.168.1.x/MITS-PMS/api"
+              placeholderTextColor={colors.cardSubText}
               autoCapitalize="none"
             />
 
             <View style={styles.modalActions}>
               <TouchableOpacity
-                style={[styles.modalBtn, styles.cancelBtn]}
+                style={[styles.modalBtn, styles.cancelBtn, { backgroundColor: theme === 'dark' ? '#334155' : '#e2e8f0' }]}
                 onPress={() => setSettingsVisible(false)}
               >
-                <Text style={styles.cancelBtnText}>Cancel</Text>
+                <Text style={[styles.cancelBtnText, { color: theme === 'dark' ? '#f1f5f9' : '#475569' }]}>Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -279,27 +283,28 @@ export default function LoginScreen({ onLoginSuccess }) {
       {/* Forgot Password Modal */}
       <Modal visible={forgotModalVisible} animationType="fade" transparent={true}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Reset Password</Text>
-            <Text style={styles.modalSub}>
+          <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Reset Password</Text>
+            <Text style={[styles.modalSub, { color: colors.textSub }]}>
               Enter your User ID to receive a password reset link at your registered email address.
             </Text>
 
-            <Text style={styles.label}>User ID (Username)</Text>
+            <Text style={[styles.label, { color: colors.textSub }]}>User ID (Username)</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder, color: colors.text }]}
               value={forgotUserId}
               onChangeText={setForgotUserId}
               placeholder="e.g. 23MCA08"
+              placeholderTextColor={colors.cardSubText}
               autoCapitalize="none"
             />
 
             <View style={styles.modalActions}>
               <TouchableOpacity
-                style={[styles.modalBtn, styles.cancelBtn]}
+                style={[styles.modalBtn, styles.cancelBtn, { backgroundColor: theme === 'dark' ? '#334155' : '#e2e8f0' }]}
                 onPress={() => setForgotModalVisible(false)}
               >
-                <Text style={styles.cancelBtnText}>Cancel</Text>
+                <Text style={[styles.cancelBtnText, { color: theme === 'dark' ? '#f1f5f9' : '#475569' }]}>Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

@@ -12,6 +12,7 @@ import {
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getBaseUrl, API_ENDPOINTS } from '../config';
+import { useTheme } from '../ThemeContext';
 
 const showAlert = (title, message) => {
   if (Platform.OS === 'web') {
@@ -22,6 +23,8 @@ const showAlert = (title, message) => {
 };
 
 export default function ApplicationScreen() {
+  const { theme, colors } = useTheme();
+  
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -63,38 +66,38 @@ export default function ApplicationScreen() {
   }, []);
 
   const renderAppItem = ({ item }) => (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.headerRow}>
         <Text style={styles.appIdText}>App ID: #{item.App_ID}</Text>
-        <View style={styles.statusBadge}>
-          <Text style={styles.statusText}>Submitted</Text>
+        <View style={[styles.statusBadge, { backgroundColor: theme === 'dark' ? 'rgba(34,197,94,0.15)' : 'rgba(25,135,84,0.15)', borderColor: colors.success }]}>
+          <Text style={[styles.statusText, { color: colors.success }]}>Submitted</Text>
         </View>
       </View>
 
-      <Text style={styles.driveName}>{item.D_Name}</Text>
-      <Text style={styles.companyName}>Company: <Text style={{ fontWeight: 'bold', color: '#212529' }}>{item.C_Name || 'N/A'}</Text></Text>
-      <Text style={styles.roleText}>Role: {item.Role}</Text>
+      <Text style={[styles.driveName, { color: colors.text }]}>{item.D_Name}</Text>
+      <Text style={[styles.companyName, { color: colors.textSub }]}>Company: <Text style={{ fontWeight: 'bold', color: colors.text }}>{item.C_Name || 'N/A'}</Text></Text>
+      <Text style={[styles.roleText, { color: colors.textSub }]}>Role: {item.Role}</Text>
 
-      <View style={styles.footerRow}>
-        <Text style={styles.dateText}>Drive Date: {item.D_Date}</Text>
+      <View style={[styles.footerRow, { borderTopColor: colors.border }]}>
+        <Text style={[styles.dateText, { color: colors.cardSubText }]}>Drive Date: {item.D_Date}</Text>
       </View>
     </View>
   );
 
   if (loading) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#d1202d" />
-        <Text style={styles.loadingText}>Loading Application History...</Text>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.textSub }]}>Loading Application History...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {/* Web Dashboard Sub-Header (.dashboard-header #343a40) */}
-      <View style={styles.dashboardHeader}>
-        <Text style={styles.dashboardTitle}>Application History</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Web Dashboard Sub-Header */}
+      <View style={[styles.dashboardHeader, { backgroundColor: colors.headerBackground }]}>
+        <Text style={[styles.dashboardTitle, { color: colors.headerText }]}>Application History</Text>
       </View>
 
       <FlatList
@@ -103,13 +106,13 @@ export default function ApplicationScreen() {
         renderItem={renderAppItem}
         contentContainerStyle={styles.listPadding}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#d1202d']} tintColor="#d1202d" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>📋</Text>
-            <Text style={styles.emptyTitle}>No Applications Found</Text>
-            <Text style={styles.emptySub}>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>No Applications Found</Text>
+            <Text style={[styles.emptySub, { color: colors.textSub }]}>
               You have not applied for any campus drives yet. Check the Campus Drives tab to view eligible opportunities!
             </Text>
           </View>

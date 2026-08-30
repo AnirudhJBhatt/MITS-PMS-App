@@ -29,6 +29,7 @@ import ApplicationScreen from './screens/ApplicationScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import * as Notifications from 'expo-notifications';
+import { ThemeProvider, useTheme } from './ThemeContext';
 
 // Configure notification behavior for when the app is in the foreground
 Notifications.setNotificationHandler({
@@ -55,7 +56,10 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
 	}
 }
 
-export default function App() {
+
+function MainApp() {
+	const { theme, colors } = useTheme();
+
 	const [fontsLoaded] = useFonts({
 		Solway_400Regular,
 		Solway_700Bold,
@@ -134,9 +138,9 @@ export default function App() {
 
 	if (initializing || !fontsLoaded) {
 		return (
-			<View style={styles.centerContainer}>
-				<ActivityIndicator size="large" color="#d1202d" />
-				<StatusBar style="light" backgroundColor="#d1202d" />
+			<View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+				<ActivityIndicator size="large" color={colors.primary} />
+				<StatusBar style={theme === 'dark' ? 'light' : 'dark'} backgroundColor={colors.background} />
 			</View>
 		);
 	}
@@ -144,34 +148,34 @@ export default function App() {
 	// If user is not logged in, render LoginScreen
 	if (!user) {
 		return (
-			<SafeAreaView style={styles.safeArea}>
-				<StatusBar style="light" backgroundColor="#d1202d" />
+			<SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+				<StatusBar style={theme === 'dark' ? 'light' : 'dark'} backgroundColor={colors.background} />
 				<LoginScreen onLoginSuccess={handleLoginSuccess} />
 			</SafeAreaView>
 		);
 	}
 
 	return (
-		<SafeAreaView style={styles.safeArea}>
-			<StatusBar style="light" backgroundColor="#d1202d" />
+		<SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+			<StatusBar style="light" backgroundColor={colors.headerBackground} />
 
-			{/* Web Header Matching .header-back (#d1202d) */}
-			<View style={styles.appHeader}>
+			{/* Web Header Matching .header-back */}
+			<View style={[styles.appHeader, { backgroundColor: colors.headerBackground }]}>
 				<View style={styles.headerLeft}>
 					<Image
 						source={require('./assets/cdc_mits_logo.png')}
 						style={styles.headerLogo}
 						resizeMode="contain"
 					/>
-					<Text style={styles.headerTitle}>MITS PMS</Text>
+					<Text style={[styles.headerTitle, { color: colors.headerText }]}>MITS PMS</Text>
 				</View>
 				<View style={styles.headerRight}>
-					<Text style={styles.userName}>{user.Stud_Name.toUpperCase() || user.Stud_ID}</Text>
+					<Text style={[styles.userName, { color: colors.headerText }]}>{user.Stud_Name.toUpperCase() || user.Stud_ID}</Text>
 				</View>
 			</View>
 
 			{/* Screen Content */}
-			<View style={styles.screenContent}>
+			<View style={[styles.screenContent, { backgroundColor: colors.background }]}>
 				{activeTab === 'drives' && <DrivesScreen />}
 				{activeTab === 'applications' && <ApplicationScreen />}
 				{activeTab === 'profile' && <ProfileScreen />}
@@ -179,75 +183,83 @@ export default function App() {
 			</View>
 
 			{/* Bottom Navigation Bar */}
-			<View style={styles.navBar}>
+			<View style={[styles.navBar, { backgroundColor: colors.navBar, borderTopColor: colors.border }]}>
 				<TouchableOpacity
-					style={[styles.navItem, activeTab === 'drives' && styles.navItemActive]}
+					style={[styles.navItem, activeTab === 'drives' && { backgroundColor: theme === 'dark' ? 'rgba(239,68,68,0.1)' : 'rgba(209,32,45,0.08)' }]}
 					onPress={() => setActiveTab('drives')}
 				>
 					<Ionicons
 						name={activeTab === 'drives' ? 'school' : 'school-outline'}
 						size={22}
-						color={activeTab === 'drives' ? '#d1202d' : '#64748b'}
+						color={activeTab === 'drives' ? colors.primary : colors.cardSubText}
 						style={{ marginBottom: 2 }}
 					/>
-					<Text style={[styles.navLabel, activeTab === 'drives' && styles.navLabelActive]}>
+					<Text style={[styles.navLabel, activeTab === 'drives' ? { color: colors.primary, fontWeight: 'bold' } : { color: colors.cardSubText }]}>
 						Drives
 					</Text>
 				</TouchableOpacity>
 
 				<TouchableOpacity
-					style={[styles.navItem, activeTab === 'applications' && styles.navItemActive]}
+					style={[styles.navItem, activeTab === 'applications' && { backgroundColor: theme === 'dark' ? 'rgba(239,68,68,0.1)' : 'rgba(209,32,45,0.08)' }]}
 					onPress={() => setActiveTab('applications')}
 				>
 					<Ionicons
 						name={activeTab === 'applications' ? 'document-text' : 'document-text-outline'}
 						size={22}
-						color={activeTab === 'applications' ? '#d1202d' : '#64748b'}
+						color={activeTab === 'applications' ? colors.primary : colors.cardSubText}
 						style={{ marginBottom: 2 }}
 					/>
-					<Text style={[styles.navLabel, activeTab === 'applications' && styles.navLabelActive]}>
+					<Text style={[styles.navLabel, activeTab === 'applications' ? { color: colors.primary, fontWeight: 'bold' } : { color: colors.cardSubText }]}>
 						Applied
 					</Text>
 				</TouchableOpacity>
 
 				<TouchableOpacity
-					style={[styles.navItem, activeTab === 'profile' && styles.navItemActive]}
+					style={[styles.navItem, activeTab === 'profile' && { backgroundColor: theme === 'dark' ? 'rgba(239,68,68,0.1)' : 'rgba(209,32,45,0.08)' }]}
 					onPress={() => setActiveTab('profile')}
 				>
 					<Ionicons
 						name={activeTab === 'profile' ? 'person' : 'person-outline'}
 						size={22}
-						color={activeTab === 'profile' ? '#d1202d' : '#64748b'}
+						color={activeTab === 'profile' ? colors.primary : colors.cardSubText}
 						style={{ marginBottom: 2 }}
 					/>
-					<Text style={[styles.navLabel, activeTab === 'profile' && styles.navLabelActive]}>
+					<Text style={[styles.navLabel, activeTab === 'profile' ? { color: colors.primary, fontWeight: 'bold' } : { color: colors.cardSubText }]}>
 						Profile
 					</Text>
 				</TouchableOpacity>
 
 				<TouchableOpacity
-					style={[styles.navItem, activeTab === 'settings' && styles.navItemActive]}
+					style={[styles.navItem, activeTab === 'settings' && { backgroundColor: theme === 'dark' ? 'rgba(239,68,68,0.1)' : 'rgba(209,32,45,0.08)' }]}
 					onPress={() => setActiveTab('settings')}
 				>
 					<Ionicons
 						name={activeTab === 'settings' ? 'settings' : 'settings-outline'}
 						size={22}
-						color={activeTab === 'settings' ? '#d1202d' : '#64748b'}
+						color={activeTab === 'settings' ? colors.primary : colors.cardSubText}
 						style={{ marginBottom: 2 }}
 					/>
-					<Text style={[styles.navLabel, activeTab === 'settings' && styles.navLabelActive]}>
+					<Text style={[styles.navLabel, activeTab === 'settings' ? { color: colors.primary, fontWeight: 'bold' } : { color: colors.cardSubText }]}>
 						Settings
 					</Text>
 				</TouchableOpacity>
 			</View>
 
 			{/* App Footer matching web portal */}
-			<View style={styles.appFooter}>
+			<View style={[styles.appFooter, { backgroundColor: colors.footerBackground }]}>
 				<Text style={styles.footerCopyrightText}>
 					Copyright © Anirudh J Bhatt, Dept of Computer Applications, MITS Kochi
 				</Text>
 			</View>
 		</SafeAreaView>
+	);
+}
+
+export default function App() {
+	return (
+		<ThemeProvider>
+			<MainApp />
+		</ThemeProvider>
 	);
 }
 

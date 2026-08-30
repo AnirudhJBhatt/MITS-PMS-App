@@ -12,6 +12,7 @@ import {
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getBaseUrl, API_ENDPOINTS } from '../config';
+import { useTheme } from '../ThemeContext';
 
 const showAlert = (title, message) => {
   if (Platform.OS === 'web') {
@@ -22,6 +23,8 @@ const showAlert = (title, message) => {
 };
 
 export default function ProfileScreen() {
+  const { theme, colors } = useTheme();
+  
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -64,78 +67,78 @@ export default function ProfileScreen() {
 
   if (loading) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#d1202d" />
-        <Text style={styles.loadingText}>Loading Student Profile...</Text>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.textSub }]}>Loading Student Profile...</Text>
       </View>
     );
   }
 
   if (!profile) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>No profile information found.</Text>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.danger }]}>No profile information found.</Text>
       </View>
     );
   }
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#d1202d']} tintColor="#d1202d" />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
       }
     >
       {/* Profile Header */}
-      <View style={styles.profileHeader}>
-        <View style={styles.avatarCircle}>
+      <View style={[styles.profileHeader, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+        <View style={[styles.avatarCircle, { backgroundColor: colors.primary }]}>
           <Text style={styles.avatarText}>{profile.Stud_Name ? profile.Stud_Name.charAt(0) : 'S'}</Text>
         </View>
-        <Text style={styles.nameText}>{profile.Stud_Name}</Text>
-        <Text style={styles.idText}>ID: {profile.Stud_ID} | Reg No: {profile.Stud_Reg_No || 'N/A'}</Text>
+        <Text style={[styles.nameText, { color: colors.text }]}>{profile.Stud_Name}</Text>
+        <Text style={[styles.idText, { color: colors.textSub }]}>ID: {profile.Stud_ID} | Reg No: {profile.Stud_Reg_No || 'N/A'}</Text>
 
         <View style={styles.badgeRow}>
-          <View style={styles.courseBadge}>
-            <Text style={styles.badgeText}>{profile.Stud_Course}</Text>
+          <View style={[styles.courseBadge, { backgroundColor: colors.headerBackground }]}>
+            <Text style={[styles.badgeText, { color: colors.headerText }]}>{profile.Stud_Course}</Text>
           </View>
-          <View style={styles.batchBadge}>
+          <View style={[styles.batchBadge, { backgroundColor: colors.primary }]}>
             <Text style={styles.badgeText}>{profile.Prog_Name}</Text>
           </View>
         </View>
       </View>
 
       {/* Academic Performance Section */}
-      <View style={styles.sectionCard}>
-        <View style={styles.dashboardHeader}>
-          <Text style={styles.dashboardTitle}>Academic Performance</Text>
+      <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <View style={[styles.dashboardHeader, { backgroundColor: colors.headerBackground }]}>
+          <Text style={[styles.dashboardTitle, { color: colors.headerText }]}>Academic Performance</Text>
         </View>
 
         <View style={styles.grid}>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricLabel}>Current CGPA</Text>
+          <View style={[styles.metricBox, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+            <Text style={[styles.metricLabel, { color: colors.textSub }]}>Current CGPA</Text>
             <Text style={[styles.metricVal, { color: '#0d6efd' }]}>{profile.CGPA || 'N/A'}</Text>
           </View>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricLabel}>Active Backlogs</Text>
-            <Text style={[styles.metricVal, { color: profile.Stud_Backlogs > 0 ? '#d1202d' : '#198754' }]}>
+          <View style={[styles.metricBox, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+            <Text style={[styles.metricLabel, { color: colors.textSub }]}>Active Backlogs</Text>
+            <Text style={[styles.metricVal, { color: profile.Stud_Backlogs > 0 ? colors.danger : colors.success }]}>
               {profile.Stud_Backlogs || '0'}
             </Text>
           </View>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricLabel}>10th Marks</Text>
-            <Text style={styles.metricVal}>{profile.Marks_10th}%</Text>
+          <View style={[styles.metricBox, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+            <Text style={[styles.metricLabel, { color: colors.textSub }]}>10th Marks</Text>
+            <Text style={[styles.metricVal, { color: colors.text }]}>{profile.Marks_10th}%</Text>
           </View>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricLabel}>12th Marks</Text>
-            <Text style={styles.metricVal}>{profile.Marks_12th}%</Text>
+          <View style={[styles.metricBox, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+            <Text style={[styles.metricLabel, { color: colors.textSub }]}>12th Marks</Text>
+            <Text style={[styles.metricVal, { color: colors.text }]}>{profile.Marks_12th}%</Text>
           </View>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricLabel}>UG Marks</Text>
-            <Text style={styles.metricVal}>{profile.Marks_UG}%</Text>
+          <View style={[styles.metricBox, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+            <Text style={[styles.metricLabel, { color: colors.textSub }]}>UG Marks</Text>
+            <Text style={[styles.metricVal, { color: colors.text }]}>{profile.Marks_UG}%</Text>
           </View>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricLabel}>Placement Status</Text>
-            <Text style={[styles.metricVal, { color: profile.Stud_Placement == 1 ? '#198754' : '#d1202d', fontSize: 13 }]}>
+          <View style={[styles.metricBox, { backgroundColor: colors.inputBackground, borderColor: colors.border }]}>
+            <Text style={[styles.metricLabel, { color: colors.textSub }]}>Placement Status</Text>
+            <Text style={[styles.metricVal, { color: profile.Stud_Placement == 1 ? colors.success : colors.danger, fontSize: 13 }]}>
               {profile.Stud_Placement == 1 ? 'Placed' : 'Unplaced'}
             </Text>
           </View>
@@ -143,61 +146,61 @@ export default function ProfileScreen() {
       </View>
 
       {/* Personal & Contact Info Section */}
-      <View style={styles.sectionCard}>
-        <View style={styles.dashboardHeader}>
-          <Text style={styles.dashboardTitle}>Student Details</Text>
+      <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <View style={[styles.dashboardHeader, { backgroundColor: colors.headerBackground }]}>
+          <Text style={[styles.dashboardTitle, { color: colors.headerText }]}>Student Details</Text>
         </View>
 
         <View style={styles.infoContent}>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Email Address</Text>
-            <Text style={styles.infoVal}>{profile.Stud_Email || 'N/A'}</Text>
+          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.infoLabel, { color: colors.textSub }]}>Email Address</Text>
+            <Text style={[styles.infoVal, { color: colors.text }]}>{profile.Stud_Email || 'N/A'}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Mobile Number</Text>
-            <Text style={styles.infoVal}>{profile.Stud_Mob || 'N/A'}</Text>
+          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.infoLabel, { color: colors.textSub }]}>Mobile Number</Text>
+            <Text style={[styles.infoVal, { color: colors.text }]}>{profile.Stud_Mob || 'N/A'}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Gender</Text>
-            <Text style={styles.infoVal}>{profile.Stud_Gender || 'N/A'}</Text>
+          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.infoLabel, { color: colors.textSub }]}>Gender</Text>
+            <Text style={[styles.infoVal, { color: colors.text }]}>{profile.Stud_Gender || 'N/A'}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Date of Birth</Text>
-            <Text style={styles.infoVal}>{profile.Stud_DOB || 'N/A'}</Text>
+          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.infoLabel, { color: colors.textSub }]}>Date of Birth</Text>
+            <Text style={[styles.infoVal, { color: colors.text }]}>{profile.Stud_DOB || 'N/A'}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Father's Name</Text>
-            <Text style={styles.infoVal}>{profile.Stud_Father_Name || 'N/A'}</Text>
+          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.infoLabel, { color: colors.textSub }]}>Father's Name</Text>
+            <Text style={[styles.infoVal, { color: colors.text }]}>{profile.Stud_Father_Name || 'N/A'}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Mother's Name</Text>
-            <Text style={styles.infoVal}>{profile.Stud_Mother_Name || 'N/A'}</Text>
+          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.infoLabel, { color: colors.textSub }]}>Mother's Name</Text>
+            <Text style={[styles.infoVal, { color: colors.text }]}>{profile.Stud_Mother_Name || 'N/A'}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Address</Text>
-            <Text style={styles.infoVal}>{profile.Stud_Address || 'N/A'}</Text>
+          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.infoLabel, { color: colors.textSub }]}>Address</Text>
+            <Text style={[styles.infoVal, { color: colors.text }]}>{profile.Stud_Address || 'N/A'}</Text>
           </View>
         </View>
       </View>
 
-      {/* Personal & Contact Info Section */}
-      <View style={styles.sectionCard}>
-        <View style={styles.dashboardHeader}>
-          <Text style={styles.dashboardTitle}>Placement Details</Text>
+      {/* Placement Details Section */}
+      <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <View style={[styles.dashboardHeader, { backgroundColor: colors.headerBackground }]}>
+          <Text style={[styles.dashboardTitle, { color: colors.headerText }]}>Placement Details</Text>
         </View>
 
         <View style={styles.infoContent}>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Company Name</Text>
-            <Text style={styles.infoVal}>{profile.Stud_Placement_Company || 'N/A'}</Text>
+          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.infoLabel, { color: colors.textSub }]}>Company Name</Text>
+            <Text style={[styles.infoVal, { color: colors.text }]}>{profile.Stud_Placement_Company || 'N/A'}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>CTC</Text>
-            <Text style={styles.infoVal}>{profile.Stud_Placement_CTC || 'N/A'}</Text>
+          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.infoLabel, { color: colors.textSub }]}>CTC</Text>
+            <Text style={[styles.infoVal, { color: colors.text }]}>{profile.Stud_Placement_CTC || 'N/A'}</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Job Title</Text>
-            <Text style={styles.infoVal}>{profile.Stud_Job_Title || 'N/A'}</Text>
+          <View style={[styles.infoRow, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.infoLabel, { color: colors.textSub }]}>Job Title</Text>
+            <Text style={[styles.infoVal, { color: colors.text }]}>{profile.Stud_Job_Title || 'N/A'}</Text>
           </View>
         </View>
       </View>
