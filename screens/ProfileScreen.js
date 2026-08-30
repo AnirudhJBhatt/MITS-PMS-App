@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -28,6 +29,7 @@ export default function ProfileScreen() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [appBaseUrl, setAppBaseUrl] = useState('');
 
   useEffect(() => {
     fetchProfile();
@@ -39,6 +41,7 @@ export default function ProfileScreen() {
       if (!studId) return;
 
       const baseUrl = await getBaseUrl();
+      setAppBaseUrl(baseUrl);
       const response = await axios.get(`${baseUrl}${API_ENDPOINTS.PROFILE}?Stud_ID=${studId}`);
 
       let data = response.data;
@@ -91,9 +94,16 @@ export default function ProfileScreen() {
     >
       {/* Profile Header */}
       <View style={[styles.profileHeader, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-        <View style={[styles.avatarCircle, { backgroundColor: colors.primary }]}>
-          <Text style={styles.avatarText}>{profile.Stud_Name ? profile.Stud_Name.charAt(0) : 'S'}</Text>
-        </View>
+        {profile.Stud_Image ? (
+          <Image 
+            source={{ uri: `${appBaseUrl.replace(/\/api$/, '')}/${profile.Stud_Image}` }} 
+            style={styles.avatarImage} 
+          />
+        ) : (
+          <View style={[styles.avatarCircle, { backgroundColor: colors.primary }]}>
+            <Text style={styles.avatarText}>{profile.Stud_Name ? profile.Stud_Name.charAt(0) : 'S'}</Text>
+          </View>
+        )}
         <Text style={[styles.nameText, { color: colors.text }]}>{profile.Stud_Name}</Text>
         <Text style={[styles.idText, { color: colors.textSub }]}>ID: {profile.Stud_ID} | Reg No: {profile.Stud_Reg_No || 'N/A'}</Text>
 
@@ -217,6 +227,7 @@ const styles = StyleSheet.create({
   errorText: { color: '#d1202d', fontSize: 15 },
   profileHeader: { backgroundColor: '#ffffff', alignItems: 'center', paddingVertical: 20, paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#e2e8f0', elevation: 2 },
   avatarCircle: { width: 70, height: 70, borderRadius: 35, backgroundColor: '#d1202d', justifyContent: 'center', alignItems: 'center', marginBottom: 10, elevation: 3 },
+  avatarImage: { width: 70, height: 70, borderRadius: 35, marginBottom: 10, borderWidth: 2, borderColor: '#e2e8f0' },
   avatarText: { color: '#ffffff', fontSize: 30, fontWeight: 'bold' },
   nameText: { fontSize: 22, fontWeight: 'bold', color: '#212529' },
   idText: { fontSize: 13, color: '#6c757d', marginTop: 3 },
