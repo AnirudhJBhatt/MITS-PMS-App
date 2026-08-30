@@ -77,7 +77,7 @@ export default function App() {
 		try {
 			const baseUrl = await getBaseUrl();
 			const cleanBase = baseUrl.replace(/\/api\/?$/, '');
-			const VERSION_API = `${cleanBase}/version.json`;
+			const VERSION_API = `${cleanBase}/releases/version.json`;
 
 			const response = await fetch(VERSION_API);
 			const data = await response.json();
