@@ -206,9 +206,15 @@ export default function DrivesScreen() {
         <View style={styles.companyBadge}>
           <Text style={styles.companyBadgeText}>{item.C_Name || 'Company'}</Text>
         </View>
-        <View style={[styles.statusBadge, item.isApplied ? styles.appliedBadge : styles.eligibleBadge]}>
-          <Text style={[styles.statusText, item.isApplied ? styles.appliedText : styles.eligibleText]}>
-            {item.isApplied ? 'Applied' : 'Eligible'}
+        <View style={[
+          styles.statusBadge, 
+          item.isApplied ? styles.appliedBadge : (Number(item.isEligible) ? styles.eligibleBadge : styles.ineligibleBadge)
+        ]}>
+          <Text style={[
+            styles.statusText, 
+            item.isApplied ? styles.appliedText : (Number(item.isEligible) ? styles.eligibleText : styles.ineligibleText)
+          ]}>
+            {item.isApplied ? 'Applied' : (Number(item.isEligible) ? 'Eligible' : 'Ineligible')}
           </Text>
         </View>
       </View>
@@ -341,6 +347,10 @@ export default function DrivesScreen() {
                   <View style={[styles.appliedBanner, { backgroundColor: theme === 'dark' ? 'rgba(34,197,94,0.15)' : 'rgba(25, 135, 84, 0.15)', borderColor: colors.success }]}>
                     <Text style={[styles.appliedBannerText, { color: colors.success }]}>✓ Application Submitted</Text>
                   </View>
+                ) : !Number(selectedDrive.isEligible) ? (
+                  <View style={[styles.appliedBanner, { backgroundColor: 'rgba(255, 193, 7, 0.15)', borderColor: '#ffc107' }]}>
+                    <Text style={[styles.appliedBannerText, { color: '#b38600' }]}>⚠ Not Eligible</Text>
+                  </View>
                 ) : (
                   <TouchableOpacity
                     style={[styles.applyActionBtn, { backgroundColor: colors.success }, applying && styles.btnDisabled]}
@@ -384,9 +394,11 @@ const styles = StyleSheet.create({
   statusBadge: { paddingVertical: 4, paddingHorizontal: 10, borderRadius: 4 },
   appliedBadge: { backgroundColor: 'rgba(25, 135, 84, 0.15)', borderWidth: 1, borderColor: '#198754' },
   eligibleBadge: { backgroundColor: 'rgba(13, 110, 253, 0.15)', borderWidth: 1, borderColor: '#0d6efd' },
+  ineligibleBadge: { backgroundColor: 'rgba(255, 193, 7, 0.15)', borderWidth: 1, borderColor: '#ffc107' },
   statusText: { fontSize: 11, fontWeight: 'bold' },
   appliedText: { color: '#198754' },
   eligibleText: { color: '#0d6efd' },
+  ineligibleText: { color: '#b38600' },
   driveTitle: { fontSize: 18, fontWeight: 'bold', color: '#212529', marginBottom: 4 },
   driveRole: { fontSize: 14, color: '#495057' },
   divider: { height: 1, backgroundColor: '#e9ecef', marginVertical: 12 },

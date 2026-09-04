@@ -257,9 +257,11 @@ function MainApp() {
 
 export default function App() {
 	return (
-		<ThemeProvider>
-			<MainApp />
-		</ThemeProvider>
+		<SafeAreaProvider>
+			<ThemeProvider>
+				<MainApp />
+			</ThemeProvider>
+		</SafeAreaProvider>
 	);
 }
 
