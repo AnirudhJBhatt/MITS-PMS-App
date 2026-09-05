@@ -19,7 +19,14 @@ import * as Notifications from 'expo-notifications';
 import { getBaseUrl, API_ENDPOINTS } from '../config';
 import { useTheme } from '../ThemeContext';
 
-const PACKAGE_LABELS = { '0': 'Low Package', '1': 'Medium Package', '2': 'High Package' };
+const PACKAGE_LABELS = { '0': 'Service', '1': 'Product', '2': 'Dream' };
+
+const isExpired = (dateString) => {
+  if (!dateString) return false;
+  // Create date object and compare with current time
+  const deadline = new Date(dateString);
+  return new Date() >= deadline;
+};
 
 const showAlert = (title, message) => {
   if (Platform.OS === 'web') {
@@ -207,14 +214,14 @@ export default function DrivesScreen() {
           <Text style={styles.companyBadgeText}>{item.C_Name || 'Company'}</Text>
         </View>
         <View style={[
-          styles.statusBadge, 
-          item.isApplied ? styles.appliedBadge : (Number(item.isEligible) ? styles.eligibleBadge : styles.ineligibleBadge)
+          styles.statusBadge,
+          item.isApplied ? styles.appliedBadge : (isExpired(item.D_Date) ? styles.expiredBadge : (Number(item.isEligible) ? styles.eligibleBadge : styles.ineligibleBadge))
         ]}>
           <Text style={[
-            styles.statusText, 
-            item.isApplied ? styles.appliedText : (Number(item.isEligible) ? styles.eligibleText : styles.ineligibleText)
+            styles.statusText,
+            item.isApplied ? styles.appliedText : (isExpired(item.D_Date) ? styles.expiredText : (Number(item.isEligible) ? styles.eligibleText : styles.ineligibleText))
           ]}>
-            {item.isApplied ? 'Applied' : (Number(item.isEligible) ? 'Eligible' : 'Ineligible')}
+            {item.isApplied ? 'Applied' : (isExpired(item.D_Date) ? 'Expired' : (Number(item.isEligible) ? 'Eligible' : 'Ineligible'))}
           </Text>
         </View>
       </View>
@@ -351,6 +358,10 @@ export default function DrivesScreen() {
                   <View style={[styles.appliedBanner, { backgroundColor: 'rgba(255, 193, 7, 0.15)', borderColor: '#ffc107' }]}>
                     <Text style={[styles.appliedBannerText, { color: '#b38600' }]}>⚠ Not Eligible</Text>
                   </View>
+                ) : isExpired(selectedDrive.D_Date) ? (
+                  <View style={[styles.appliedBanner, { backgroundColor: 'rgba(220, 53, 69, 0.15)', borderColor: '#dc3545' }]}>
+                    <Text style={[styles.appliedBannerText, { color: '#dc3545' }]}>Expired</Text>
+                  </View>
                 ) : (
                   <TouchableOpacity
                     style={[styles.applyActionBtn, { backgroundColor: colors.success }, applying && styles.btnDisabled]}
@@ -395,10 +406,12 @@ const styles = StyleSheet.create({
   appliedBadge: { backgroundColor: 'rgba(25, 135, 84, 0.15)', borderWidth: 1, borderColor: '#198754' },
   eligibleBadge: { backgroundColor: 'rgba(13, 110, 253, 0.15)', borderWidth: 1, borderColor: '#0d6efd' },
   ineligibleBadge: { backgroundColor: 'rgba(255, 193, 7, 0.15)', borderWidth: 1, borderColor: '#ffc107' },
+  expiredBadge: { backgroundColor: 'rgba(220, 53, 69, 0.15)', borderWidth: 1, borderColor: '#dc3545' },
   statusText: { fontSize: 11, fontWeight: 'bold' },
   appliedText: { color: '#198754' },
   eligibleText: { color: '#0d6efd' },
   ineligibleText: { color: '#b38600' },
+  expiredText: { color: '#dc3545' },
   driveTitle: { fontSize: 18, fontWeight: 'bold', color: '#212529', marginBottom: 4 },
   driveRole: { fontSize: 14, color: '#495057' },
   divider: { height: 1, backgroundColor: '#e9ecef', marginVertical: 12 },
