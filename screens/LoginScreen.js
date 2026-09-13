@@ -120,8 +120,6 @@ export default function LoginScreen({ onLoginSuccess }) {
         errorMsg = 'Server connection timed out. Check your IP address setting.';
       }
       setErrorMessage(errorMsg);
-      // print API URL
-      console.log('API URL: ', endpoint);
       showAlert('Network Error', `${errorMsg}\n\nTap "⚙️ Server IP" at top right to check server URL.`);
     } finally {
       setLoading(false);
