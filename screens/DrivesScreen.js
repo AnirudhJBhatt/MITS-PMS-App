@@ -36,7 +36,7 @@ const showAlert = (title, message) => {
   }
 };
 
-export default function DrivesScreen() {
+export default function DrivesScreen({ onLogout }) {
   const { theme, colors } = useTheme();
 
   const [drives, setDrives] = useState([]);
@@ -113,10 +113,15 @@ export default function DrivesScreen() {
   const fetchDrives = async (showError = true) => {
     try {
       const studId = await AsyncStorage.getItem('Stud_ID');
+      const token = await AsyncStorage.getItem('userToken');
       if (!studId) return;
 
       const baseUrl = await getBaseUrl();
-      const response = await axios.get(`${baseUrl}${API_ENDPOINTS.DRIVES}?Stud_ID=${studId}`);
+      const response = await axios.get(`${baseUrl}${API_ENDPOINTS.DRIVES}?Stud_ID=${studId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
       let data = response.data;
 
@@ -136,6 +141,11 @@ export default function DrivesScreen() {
       }
     } catch (error) {
       console.error('Fetch drives error:', error);
+      if (error.response && error.response.status === 401) {
+        showAlert('Session Expired', 'Your session has expired. Please login again.');
+        if (onLogout) onLogout();
+        return;
+      }
       if (showError) {
         showAlert('Error', 'Unable to load campus drives. Please check connection.');
       }
@@ -174,11 +184,16 @@ export default function DrivesScreen() {
     try {
       setApplying(true);
       const studId = await AsyncStorage.getItem('Stud_ID');
+      const token = await AsyncStorage.getItem('userToken');
       const baseUrl = await getBaseUrl();
 
       const response = await axios.post(`${baseUrl}${API_ENDPOINTS.APPLY}`, {
         Stud_ID: studId,
         D_ID: drive.D_ID,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       let data = response.data;
@@ -195,6 +210,11 @@ export default function DrivesScreen() {
       }
     } catch (error) {
       console.error('Apply drive error:', error);
+      if (error.response && error.response.status === 401) {
+        showAlert('Session Expired', 'Your session has expired. Please login again.');
+        if (onLogout) onLogout();
+        return;
+      }
       showAlert('Error', 'Network error while submitting application.');
     } finally {
       setApplying(false);

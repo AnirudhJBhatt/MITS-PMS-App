@@ -100,6 +100,9 @@ export default function LoginScreen({ onLoginSuccess }) {
         const studentData = data.data;
         await AsyncStorage.setItem('user_session', JSON.stringify(studentData));
         await AsyncStorage.setItem('Stud_ID', studentData.Stud_ID);
+        if (data.token) {
+          await AsyncStorage.setItem('userToken', data.token);
+        }
 
         onLoginSuccess(studentData);
       } else {

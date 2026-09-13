@@ -131,7 +131,14 @@ function MainApp() {
 		setActiveTab('drives');
 	};
 
-	const handleLogout = () => {
+	const handleLogout = async () => {
+		try {
+			await AsyncStorage.removeItem('user_session');
+			await AsyncStorage.removeItem('Stud_ID');
+			await AsyncStorage.removeItem('userToken');
+		} catch (e) {
+			console.error('Logout error:', e);
+		}
 		setUser(null);
 		setActiveTab('drives');
 	};
@@ -176,9 +183,9 @@ function MainApp() {
 
 			{/* Screen Content */}
 			<View style={[styles.screenContent, { backgroundColor: colors.background }]}>
-				{activeTab === 'drives' && <DrivesScreen />}
-				{activeTab === 'applications' && <ApplicationScreen />}
-				{activeTab === 'profile' && <ProfileScreen />}
+				{activeTab === 'drives' && <DrivesScreen onLogout={handleLogout} />}
+				{activeTab === 'applications' && <ApplicationScreen onLogout={handleLogout} />}
+				{activeTab === 'profile' && <ProfileScreen onLogout={handleLogout} />}
 				{activeTab === 'settings' && <SettingsScreen onLogout={handleLogout} />}
 			</View>
 
