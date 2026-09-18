@@ -16,6 +16,7 @@ import {
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { getBaseUrl, API_ENDPOINTS } from '../config';
 import { useTheme } from '../ThemeContext';
 
@@ -77,7 +78,7 @@ export default function DrivesScreen({ onLogout }) {
       const studId = await AsyncStorage.getItem('Stud_ID');
       const baseUrl = await getBaseUrl();
       if (studId && token) {
-        await axios.post(`${baseUrl}/api/update-expo-token.php`, {
+        await axios.post(`${baseUrl}/update-expo-token.php`, {
           Stud_ID: studId,
           expo_token: token
         });
