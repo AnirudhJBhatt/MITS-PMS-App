@@ -51,13 +51,6 @@ export default function DrivesScreen({ onLogout }) {
   useEffect(() => {
     registerForPushNotificationsAsync();
     fetchDrives(true);
-
-    // Poll for new drives in the background every 30 seconds
-    const interval = setInterval(() => {
-      fetchDrives(false);
-    }, 30000);
-
-    return () => clearInterval(interval);
   }, []);
 
   const registerForPushNotificationsAsync = async () => {
@@ -70,45 +63,31 @@ export default function DrivesScreen({ onLogout }) {
         finalStatus = status;
       }
       if (finalStatus !== 'granted') {
-        console.log('Failed to get notification permission for local notification!');
+        console.log('Failed to get notification permission for push notification!');
+        return;
+      }
+      
+      const projectId = Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
+      const tokenData = await Notifications.getExpoPushTokenAsync({
+        projectId: projectId,
+      });
+      const token = tokenData.data;
+      
+      // Send the token to your backend
+      const studId = await AsyncStorage.getItem('Stud_ID');
+      const baseUrl = await getBaseUrl();
+      if (studId && token) {
+        await axios.post(`${baseUrl}/api/update-expo-token.php`, {
+          Stud_ID: studId,
+          expo_token: token
+        });
       }
     } catch (e) {
       console.error('Error requesting notification permissions:', e);
     }
   };
 
-  const checkForNewDrives = async (fetchedDrives) => {
-    if (Platform.OS === 'web') return;
-    try {
-      const cachedIdsString = await AsyncStorage.getItem('seen_drive_ids');
-      const fetchedIds = fetchedDrives.map(d => d.D_ID.toString());
-
-      if (cachedIdsString !== null) {
-        const cachedIds = JSON.parse(cachedIdsString);
-
-        // Find drives that are in fetchedIds but not in cachedIds
-        const newDrives = fetchedDrives.filter(d => !cachedIds.includes(d.D_ID.toString()));
-
-        if (newDrives.length > 0) {
-          for (const drive of newDrives) {
-            await Notifications.scheduleNotificationAsync({
-              content: {
-                title: 'New Campus Drive Available! 🎓',
-                body: `${drive.C_Name || 'A new company'} is recruiting for ${drive.Role || 'a role'}.`,
-                data: { driveId: drive.D_ID },
-              },
-              trigger: null, // show immediately
-            });
-          }
-        }
-      }
-
-      // Update cached IDs with the latest fetched list
-      await AsyncStorage.setItem('seen_drive_ids', JSON.stringify(fetchedIds));
-    } catch (error) {
-      console.error('Error checking for new drives:', error);
-    }
-  };
+  // Local polling removed. Push notifications are now sent by the PHP backend.
 
   const fetchDrives = async (showError = true) => {
     try {
@@ -131,7 +110,7 @@ export default function DrivesScreen({ onLogout }) {
 
       if (data && data.status === 'success') {
         const fetchedDrives = data.data || [];
-        await checkForNewDrives(fetchedDrives);
+        setDrives(fetchedDrives);
         setDrives(fetchedDrives);
         filterDrives(fetchedDrives, searchQuery);
       } else {
