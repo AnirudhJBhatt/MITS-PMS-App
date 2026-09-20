@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "146274327381",
+    "project_id": "mits-pms",
+    "storage_bucket": "mits-pms.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:146274327381:android:89e7530a66daed2381addc",
+        "android_client_info": {
+          "package_name": "com.anirudhjbhatt.MITSPMSApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCl7giXFrShjKn0Y4vdC9u6O4psvbLiomw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

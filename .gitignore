@@ -42,3 +42,6 @@ yarn-error.*
 
 # env files
 .env
+
+# firebase files
+mits-pms-firebase-adminsdk-fbsvc-f29cb82645.json

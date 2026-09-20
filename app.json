@@ -21,7 +21,8 @@
 				"backgroundColor": "#ffffff"
 			},
 			"edgeToEdgeEnabled": true,
-			"package": "com.anirudhjbhatt.MITSPMSApp"
+			"package": "com.anirudhjbhatt.MITSPMSApp",
+			"googleServicesFile": "./google-services.json"
 		},
 		"updates": {
 			"url": "https://u.expo.dev/cef14b44-ece3-41f7-88c2-14480f1a1697"
