@@ -21,6 +21,8 @@ import {
 	Solway_700Bold,
 } from '@expo-google-fonts/solway';
 import Constants from 'expo-constants';
+import * as FileSystem from 'expo-file-system';
+import * as IntentLauncher from 'expo-intent-launcher';
 import { getBaseUrl } from './config';
 
 import LoginScreen from './screens/LoginScreen';
@@ -98,9 +100,24 @@ function MainApp() {
 							{ text: "Later", style: "cancel" },
 							{
 								text: "Download APK",
-								onPress: () => {
+								onPress: async () => {
 									if (data.download_url) {
-										Linking.openURL(data.download_url);
+										try {
+											Alert.alert("Downloading...", "The update is downloading in the background. You will be prompted to install it shortly.");
+											const downloadRes = await FileSystem.downloadAsync(
+												data.download_url,
+												FileSystem.documentDirectory + 'update.apk'
+											);
+											const contentUri = await FileSystem.getContentUriAsync(downloadRes.uri);
+											await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+												data: contentUri,
+												flags: 1,
+												type: 'application/vnd.android.package-archive',
+											});
+										} catch (err) {
+											Alert.alert("Error", "Failed to download or install the update.");
+											console.error(err);
+										}
 									}
 								}
 							}

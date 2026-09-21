@@ -76,7 +76,7 @@ jobs:
       - name: Create version.json
         if: steps.filter.outputs.native == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          echo "{\"version\": \"${{ steps.version.outputs.version }}\", \"download_url\": \"${{ secrets.VPS_APP_DOMAIN }}/MITS-PMS/mits-pms-app.apk\"}" > version.json
+          echo "{\"version\": \"${{ steps.version.outputs.version }}\", \"download_url\": \"${{ secrets.VPS_APP_DOMAIN }}/releases/mits-pms-app.apk\"}" > version.json
 
       - name: Upload APK and version.json to VPS
         if: steps.filter.outputs.native == 'true' || github.event_name == 'workflow_dispatch'

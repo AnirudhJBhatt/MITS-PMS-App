@@ -22,7 +22,8 @@
 			},
 			"edgeToEdgeEnabled": true,
 			"package": "com.anirudhjbhatt.MITSPMSApp",
-			"googleServicesFile": "./google-services.json"
+			"googleServicesFile": "./google-services.json",
+			"permissions": ["REQUEST_INSTALL_PACKAGES"]
 		},
 		"updates": {
 			"url": "https://u.expo.dev/cef14b44-ece3-41f7-88c2-14480f1a1697"
