@@ -21,7 +21,7 @@ import {
 	Solway_700Bold,
 } from '@expo-google-fonts/solway';
 import Constants from 'expo-constants';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as IntentLauncher from 'expo-intent-launcher';
 import { getBaseUrl } from './config';
 
@@ -87,7 +87,6 @@ function MainApp() {
 
 			const response = await fetch(VERSION_API);
 			const data = await response.json();
-
 			if (data && data.version) {
 				const latestVersion = data.version;
 				const currentVersion = Constants.expoConfig?.version || Constants.manifest?.version;
