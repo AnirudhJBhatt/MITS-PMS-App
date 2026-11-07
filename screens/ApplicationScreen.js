@@ -36,10 +36,15 @@ export default function ApplicationScreen() {
   const fetchApplications = async () => {
     try {
       const studId = await AsyncStorage.getItem('Stud_ID');
+      const token = await AsyncStorage.getItem('userToken');
       if (!studId) return;
 
       const baseUrl = await getBaseUrl();
-      const response = await axios.get(`${baseUrl}${API_ENDPOINTS.APPLICATIONS}?Stud_ID=${studId}`);
+      const response = await axios.get(`${baseUrl}${API_ENDPOINTS.APPLICATIONS}?Stud_ID=${studId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
       let data = response.data;
       if (typeof data === 'string') {

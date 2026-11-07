@@ -38,11 +38,16 @@ export default function ProfileScreen() {
   const fetchProfile = async () => {
     try {
       const studId = await AsyncStorage.getItem('Stud_ID');
+      const token = await AsyncStorage.getItem('userToken');
       if (!studId) return;
 
       const baseUrl = await getBaseUrl();
       setAppBaseUrl(baseUrl);
-      const response = await axios.get(`${baseUrl}${API_ENDPOINTS.PROFILE}?Stud_ID=${studId}`);
+      const response = await axios.get(`${baseUrl}${API_ENDPOINTS.PROFILE}?Stud_ID=${studId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
       let data = response.data;
       if (typeof data === 'string') {

@@ -76,11 +76,16 @@ export default function DrivesScreen({ onLogout }) {
       
       // Send the token to your backend
       const studId = await AsyncStorage.getItem('Stud_ID');
+      const userToken = await AsyncStorage.getItem('userToken');
       const baseUrl = await getBaseUrl();
       if (studId && token) {
         await axios.post(`${baseUrl}/update-expo-token.php`, {
           Stud_ID: studId,
           expo_token: token
+        }, {
+          headers: {
+            'Authorization': `Bearer ${userToken}`
+          }
         });
       }
     } catch (e) {

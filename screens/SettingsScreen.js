@@ -86,12 +86,17 @@ export default function SettingsScreen({ onLogout }) {
     setUpdatingPassword(true);
     try {
       const studId = await AsyncStorage.getItem('Stud_ID');
+      const token = await AsyncStorage.getItem('userToken');
       const baseUrl = await getBaseUrl();
 
       const response = await axios.post(`${baseUrl}${API_ENDPOINTS.CHANGE_PASSWORD}`, {
         User_ID: studId,
         old_password: oldPassword,
         new_password: newPassword,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       let data = response.data;
