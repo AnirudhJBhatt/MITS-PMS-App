@@ -7,8 +7,13 @@ import { Platform } from 'react-native';
 // On physical devices: IP address (e.g., 192.168.1.100)
 const DEFAULT_HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
 const DEFAULT_BASE_URL = process.env.EXPO_PUBLIC_API_URL || `http://${DEFAULT_HOST}/MITS-PMS/api`;
-// http://10.180.71.219/MITS-PMS/api
+
 export const getBaseUrl = async () => {
+  // Prioritize ENV variable if configured
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL.trim().replace(/\/+$/, '');
+  }
+
   try {
     const savedUrl = await AsyncStorage.getItem('API_BASE_URL');
     if (savedUrl) {
