@@ -24,7 +24,7 @@ const showAlert = (title, message) => {
 
 export default function ApplicationScreen() {
   const { theme, colors } = useTheme();
-  
+
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -48,7 +48,7 @@ export default function ApplicationScreen() {
 
       let data = response.data;
       if (typeof data === 'string') {
-        try { data = JSON.parse(data); } catch (e) {}
+        try { data = JSON.parse(data); } catch (e) { }
       }
 
       if (data && data.status === 'success') {
@@ -58,7 +58,8 @@ export default function ApplicationScreen() {
       }
     } catch (error) {
       console.error('Fetch applications error:', error);
-      showAlert('Error', 'Unable to fetch your application history.');
+      // print api endpoint in show alert
+      showAlert('Error', 'Unable to fetch your application history sorry.', `${baseUrl}${API_ENDPOINTS.APPLICATIONS}?Stud_ID=${studId}`);
     } finally {
       setLoading(false);
       setRefreshing(false);
