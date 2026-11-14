@@ -19,6 +19,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { getBaseUrl, API_ENDPOINTS } from '../config';
 import { useTheme } from '../ThemeContext';
+import { getUserToken } from '../authStorage';
 
 const PACKAGE_LABELS = { '0': 'Service', '1': 'Product', '2': 'Dream' };
 
@@ -76,7 +77,7 @@ export default function DrivesScreen({ onLogout }) {
       
       // Send the token to your backend
       const studId = await AsyncStorage.getItem('Stud_ID');
-      const userToken = await AsyncStorage.getItem('userToken');
+      const userToken = await getUserToken();
       const baseUrl = await getBaseUrl();
       if (studId && token) {
         await axios.post(`${baseUrl}/update-expo-token.php`, {
@@ -98,7 +99,7 @@ export default function DrivesScreen({ onLogout }) {
   const fetchDrives = async (showError = true) => {
     try {
       const studId = await AsyncStorage.getItem('Stud_ID');
-      const token = await AsyncStorage.getItem('userToken');
+      const token = await getUserToken();
       if (!studId) return;
 
       const baseUrl = await getBaseUrl();
@@ -169,7 +170,7 @@ export default function DrivesScreen({ onLogout }) {
     try {
       setApplying(true);
       const studId = await AsyncStorage.getItem('Stud_ID');
-      const token = await AsyncStorage.getItem('userToken');
+      const token = await getUserToken();
       const baseUrl = await getBaseUrl();
 
       const response = await axios.post(`${baseUrl}${API_ENDPOINTS.APPLY}`, {
@@ -208,7 +209,9 @@ export default function DrivesScreen({ onLogout }) {
 
   const appliedCount = drives.filter((d) => d.isApplied).length;
 
-  const renderDriveItem = ({ item }) => (
+  const keyExtractor = useCallback((item) => String(item.D_ID), []);
+
+  const renderDriveItem = useCallback(({ item }) => (
     <TouchableOpacity
       style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
       activeOpacity={0.85}
@@ -241,7 +244,7 @@ export default function DrivesScreen({ onLogout }) {
         <Text style={[styles.detailText, { color: colors.cardSubText }]}>Deadline: <Text style={[styles.dateHighlight, { color: colors.primary }]}>{item.D_Date}</Text></Text>
       </View>
     </TouchableOpacity>
-  );
+  ), [colors]);
 
   if (loading) {
     return (
@@ -285,9 +288,13 @@ export default function DrivesScreen({ onLogout }) {
       {/* Drive List */}
       <FlatList
         data={filteredDrives}
-        keyExtractor={(item) => item.D_ID.toString()}
+        keyExtractor={keyExtractor}
         renderItem={renderDriveItem}
         contentContainerStyle={styles.listPadding}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
+        removeClippedSubviews={Platform.OS === 'android'}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
         }
@@ -304,7 +311,12 @@ export default function DrivesScreen({ onLogout }) {
 
       {/* Drive Details Modal */}
       {selectedDrive && (
-        <Modal visible={true} animationType="slide" transparent={true}>
+        <Modal
+          visible={true}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setSelectedDrive(null)}
+        >
           <View style={styles.modalOverlay}>
             <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <ScrollView>
@@ -357,7 +369,7 @@ export default function DrivesScreen({ onLogout }) {
                 {/* Apply Button */}
                 {selectedDrive.isApplied ? (
                   <View style={[styles.appliedBanner, { backgroundColor: theme === 'dark' ? 'rgba(34,197,94,0.15)' : 'rgba(25, 135, 84, 0.15)', borderColor: colors.success }]}>
-                    <Text style={[styles.appliedBannerText, { color: colors.success }]}>✓ Application Submitted</Text>
+                    <Text style={[styles.appliedBannerText, { color: colors.success }]}>Application Submitted</Text>
                   </View>
                 ) : !Number(selectedDrive.isEligible) ? (
                   <View style={[styles.appliedBanner, { backgroundColor: 'rgba(255, 193, 7, 0.15)', borderColor: '#ffc107' }]}>

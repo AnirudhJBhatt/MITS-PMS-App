@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { getBaseUrl, saveBaseUrl, API_ENDPOINTS } from '../config';
 import { useTheme } from '../ThemeContext';
+import { getUserToken, removeUserToken } from '../authStorage';
 
 const showAlert = (title, message) => {
   if (Platform.OS === 'web') {
@@ -86,7 +87,7 @@ export default function SettingsScreen({ onLogout }) {
     setUpdatingPassword(true);
     try {
       const studId = await AsyncStorage.getItem('Stud_ID');
-      const token = await AsyncStorage.getItem('userToken');
+      const token = await getUserToken();
       const baseUrl = await getBaseUrl();
 
       const response = await axios.post(`${baseUrl}${API_ENDPOINTS.CHANGE_PASSWORD}`, {
@@ -141,6 +142,7 @@ export default function SettingsScreen({ onLogout }) {
   const performLogout = async () => {
     await AsyncStorage.removeItem('user_session');
     await AsyncStorage.removeItem('Stud_ID');
+    await removeUserToken();
     if (onLogout) onLogout();
   };
 

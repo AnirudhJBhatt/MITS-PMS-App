@@ -14,6 +14,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getBaseUrl, API_ENDPOINTS } from '../config';
 import { useTheme } from '../ThemeContext';
+import { getUserToken } from '../authStorage';
 
 const showAlert = (title, message) => {
   if (Platform.OS === 'web') {
@@ -38,7 +39,7 @@ export default function ProfileScreen() {
   const fetchProfile = async () => {
     try {
       const studId = await AsyncStorage.getItem('Stud_ID');
-      const token = await AsyncStorage.getItem('userToken');
+      const token = await getUserToken();
       if (!studId) return;
 
       const baseUrl = await getBaseUrl();

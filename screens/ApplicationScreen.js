@@ -13,6 +13,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getBaseUrl, API_ENDPOINTS } from '../config';
 import { useTheme } from '../ThemeContext';
+import { getUserToken } from '../authStorage';
 
 const showAlert = (title, message) => {
   if (Platform.OS === 'web') {
@@ -36,7 +37,7 @@ export default function ApplicationScreen() {
   const fetchApplications = async () => {
     try {
       const studId = await AsyncStorage.getItem('Stud_ID');
-      const token = await AsyncStorage.getItem('userToken');
+      const token = await getUserToken();
       if (!studId) return;
 
       const baseUrl = await getBaseUrl();
@@ -71,7 +72,9 @@ export default function ApplicationScreen() {
     fetchApplications();
   }, []);
 
-  const renderAppItem = ({ item }) => (
+  const keyExtractor = useCallback((item) => String(item.App_ID), []);
+
+  const renderAppItem = useCallback(({ item }) => (
     <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.headerRow}>
         <Text style={styles.appIdText}>App ID: #{item.App_ID}</Text>
@@ -88,7 +91,7 @@ export default function ApplicationScreen() {
         <Text style={[styles.dateText, { color: colors.cardSubText }]}>Drive Date: {item.D_Date}</Text>
       </View>
     </View>
-  );
+  ), [colors, theme]);
 
   if (loading) {
     return (
@@ -108,9 +111,13 @@ export default function ApplicationScreen() {
 
       <FlatList
         data={applications}
-        keyExtractor={(item) => item.App_ID.toString()}
+        keyExtractor={keyExtractor}
         renderItem={renderAppItem}
         contentContainerStyle={styles.listPadding}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
+        removeClippedSubviews={Platform.OS === 'android'}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
         }

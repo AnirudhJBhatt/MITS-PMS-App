@@ -9,20 +9,33 @@ const DEFAULT_HOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
 const DEFAULT_BASE_URL = process.env.EXPO_PUBLIC_API_URL || `http://${DEFAULT_HOST}/MITS-PMS/api`;
 
 export const getBaseUrl = async () => {
-  // Prioritize ENV variable if configured
-  if (process.env.EXPO_PUBLIC_API_URL) {
-    return process.env.EXPO_PUBLIC_API_URL.trim().replace(/\/+$/, '');
-  }
-
+  // 1. Prioritize user-configured URL from Settings/Storage
   try {
     const savedUrl = await AsyncStorage.getItem('API_BASE_URL');
-    if (savedUrl) {
-      return savedUrl;
+    if (savedUrl && savedUrl.trim()) {
+      return savedUrl.trim().replace(/\/+$/, '');
     }
   } catch (error) {
     console.error('Error reading saved API_BASE_URL:', error);
   }
+
+  // 2. Fall back to ENV variable if configured
+  if (process.env.EXPO_PUBLIC_API_URL && process.env.EXPO_PUBLIC_API_URL.trim()) {
+    return process.env.EXPO_PUBLIC_API_URL.trim().replace(/\/+$/, '');
+  }
+
+  // 3. Fall back to default platform host
   return DEFAULT_BASE_URL;
+};
+
+export const resetBaseUrl = async () => {
+  try {
+    await AsyncStorage.removeItem('API_BASE_URL');
+    return process.env.EXPO_PUBLIC_API_URL || DEFAULT_BASE_URL;
+  } catch (error) {
+    console.error('Error resetting API_BASE_URL:', error);
+    throw error;
+  }
 };
 
 export const saveBaseUrl = async (url) => {

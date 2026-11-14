@@ -4,15 +4,14 @@ import {
 	StyleSheet,
 	Text,
 	View,
-	TouchableOpacity,
 	ActivityIndicator,
 	Platform,
 	Image,
-	StatusBar as RNStatusBar,
 	Alert,
-	Linking,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -24,6 +23,7 @@ import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as IntentLauncher from 'expo-intent-launcher';
 import { getBaseUrl } from './config';
+import { removeUserToken } from './authStorage';
 
 import LoginScreen from './screens/LoginScreen';
 import DrivesScreen from './screens/DrivesScreen';
@@ -58,6 +58,60 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
 	}
 }
 
+const Tab = createBottomTabNavigator();
+
+function TabNavigator({ onLogout }) {
+	const { colors, theme } = useTheme();
+
+	return (
+		<Tab.Navigator
+			screenOptions={({ route }) => ({
+				headerShown: false,
+				tabBarActiveTintColor: colors.primary,
+				tabBarInactiveTintColor: colors.cardSubText,
+				tabBarStyle: {
+					backgroundColor: colors.navBar,
+					borderTopColor: colors.border,
+					borderTopWidth: 1,
+					height: 55,
+					paddingBottom: 5,
+					paddingTop: 5,
+				},
+				tabBarLabelStyle: {
+					fontSize: 11,
+					fontFamily: 'Solway_400Regular',
+					fontWeight: '500',
+				},
+				tabBarIcon: ({ focused, color }) => {
+					let iconName;
+					if (route.name === 'Drives') {
+						iconName = focused ? 'school' : 'school-outline';
+					} else if (route.name === 'Applied') {
+						iconName = focused ? 'document-text' : 'document-text-outline';
+					} else if (route.name === 'Profile') {
+						iconName = focused ? 'person' : 'person-outline';
+					} else if (route.name === 'Settings') {
+						iconName = focused ? 'settings' : 'settings-outline';
+					}
+					return <Ionicons name={iconName} size={22} color={color} style={{ marginBottom: -2 }} />;
+				},
+			})}
+		>
+			<Tab.Screen name="Drives">
+				{(props) => <DrivesScreen {...props} onLogout={onLogout} />}
+			</Tab.Screen>
+			<Tab.Screen name="Applied">
+				{(props) => <ApplicationScreen {...props} onLogout={onLogout} />}
+			</Tab.Screen>
+			<Tab.Screen name="Profile">
+				{(props) => <ProfileScreen {...props} onLogout={onLogout} />}
+			</Tab.Screen>
+			<Tab.Screen name="Settings">
+				{(props) => <SettingsScreen {...props} onLogout={onLogout} />}
+			</Tab.Screen>
+		</Tab.Navigator>
+	);
+}
 
 function MainApp() {
 	const { theme, colors } = useTheme();
@@ -71,7 +125,6 @@ function MainApp() {
 
 	const [user, setUser] = useState(null);
 	const [initializing, setInitializing] = useState(true);
-	const [activeTab, setActiveTab] = useState('drives');
 
 	useEffect(() => {
 		checkUserSession();
@@ -144,19 +197,17 @@ function MainApp() {
 
 	const handleLoginSuccess = (userData) => {
 		setUser(userData);
-		setActiveTab('drives');
 	};
 
 	const handleLogout = async () => {
 		try {
 			await AsyncStorage.removeItem('user_session');
 			await AsyncStorage.removeItem('Stud_ID');
-			await AsyncStorage.removeItem('userToken');
+			await removeUserToken();
 		} catch (e) {
 			console.error('Logout error:', e);
 		}
 		setUser(null);
-		setActiveTab('drives');
 	};
 
 	if (initializing || !fontsLoaded) {
@@ -171,15 +222,30 @@ function MainApp() {
 	// If user is not logged in, render LoginScreen
 	if (!user) {
 		return (
-			<SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+			<SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top', 'bottom', 'left', 'right']}>
 				<StatusBar style={theme === 'dark' ? 'light' : 'dark'} backgroundColor={colors.background} />
 				<LoginScreen onLoginSuccess={handleLoginSuccess} />
 			</SafeAreaView>
 		);
 	}
 
+	const baseTheme = theme === 'dark' ? DarkTheme : DefaultTheme;
+	const navTheme = {
+		...baseTheme,
+		dark: theme === 'dark',
+		colors: {
+			...baseTheme.colors,
+			primary: colors.primary,
+			background: colors.background,
+			card: colors.card,
+			text: colors.text,
+			border: colors.border,
+			notification: colors.primary,
+		},
+	};
+
 	return (
-		<SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+		<SafeAreaView style={[styles.safeArea, { backgroundColor: colors.headerBackground }]} edges={['top', 'left', 'right']}>
 			<StatusBar style="light" backgroundColor={colors.headerBackground} />
 
 			{/* Web Header Matching .header-back */}
@@ -193,79 +259,17 @@ function MainApp() {
 					<Text style={[styles.headerTitle, { color: colors.headerText }]}>MITS PMS</Text>
 				</View>
 				<View style={styles.headerRight}>
-					<Text style={[styles.userName, { color: colors.headerText }]}>{user.Stud_Name.toUpperCase() || user.Stud_ID}</Text>
+					<Text style={[styles.userName, { color: colors.headerText }]}>
+						{user.Stud_Name ? user.Stud_Name.toUpperCase() : user.Stud_ID}
+					</Text>
 				</View>
 			</View>
 
-			{/* Screen Content */}
-			<View style={[styles.screenContent, { backgroundColor: colors.background }]}>
-				{activeTab === 'drives' && <DrivesScreen onLogout={handleLogout} />}
-				{activeTab === 'applications' && <ApplicationScreen onLogout={handleLogout} />}
-				{activeTab === 'profile' && <ProfileScreen onLogout={handleLogout} />}
-				{activeTab === 'settings' && <SettingsScreen onLogout={handleLogout} />}
-			</View>
-
-			{/* Bottom Navigation Bar */}
-			<View style={[styles.navBar, { backgroundColor: colors.navBar, borderTopColor: colors.border }]}>
-				<TouchableOpacity
-					style={[styles.navItem, activeTab === 'drives' && { backgroundColor: theme === 'dark' ? 'rgba(239,68,68,0.1)' : 'rgba(209,32,45,0.08)' }]}
-					onPress={() => setActiveTab('drives')}
-				>
-					<Ionicons
-						name={activeTab === 'drives' ? 'school' : 'school-outline'}
-						size={22}
-						color={activeTab === 'drives' ? colors.primary : colors.cardSubText}
-						style={{ marginBottom: 2 }}
-					/>
-					<Text style={[styles.navLabel, activeTab === 'drives' ? { color: colors.primary, fontWeight: 'bold' } : { color: colors.cardSubText }]}>
-						Drives
-					</Text>
-				</TouchableOpacity>
-
-				<TouchableOpacity
-					style={[styles.navItem, activeTab === 'applications' && { backgroundColor: theme === 'dark' ? 'rgba(239,68,68,0.1)' : 'rgba(209,32,45,0.08)' }]}
-					onPress={() => setActiveTab('applications')}
-				>
-					<Ionicons
-						name={activeTab === 'applications' ? 'document-text' : 'document-text-outline'}
-						size={22}
-						color={activeTab === 'applications' ? colors.primary : colors.cardSubText}
-						style={{ marginBottom: 2 }}
-					/>
-					<Text style={[styles.navLabel, activeTab === 'applications' ? { color: colors.primary, fontWeight: 'bold' } : { color: colors.cardSubText }]}>
-						Applied
-					</Text>
-				</TouchableOpacity>
-
-				<TouchableOpacity
-					style={[styles.navItem, activeTab === 'profile' && { backgroundColor: theme === 'dark' ? 'rgba(239,68,68,0.1)' : 'rgba(209,32,45,0.08)' }]}
-					onPress={() => setActiveTab('profile')}
-				>
-					<Ionicons
-						name={activeTab === 'profile' ? 'person' : 'person-outline'}
-						size={22}
-						color={activeTab === 'profile' ? colors.primary : colors.cardSubText}
-						style={{ marginBottom: 2 }}
-					/>
-					<Text style={[styles.navLabel, activeTab === 'profile' ? { color: colors.primary, fontWeight: 'bold' } : { color: colors.cardSubText }]}>
-						Profile
-					</Text>
-				</TouchableOpacity>
-
-				<TouchableOpacity
-					style={[styles.navItem, activeTab === 'settings' && { backgroundColor: theme === 'dark' ? 'rgba(239,68,68,0.1)' : 'rgba(209,32,45,0.08)' }]}
-					onPress={() => setActiveTab('settings')}
-				>
-					<Ionicons
-						name={activeTab === 'settings' ? 'settings' : 'settings-outline'}
-						size={22}
-						color={activeTab === 'settings' ? colors.primary : colors.cardSubText}
-						style={{ marginBottom: 2 }}
-					/>
-					<Text style={[styles.navLabel, activeTab === 'settings' ? { color: colors.primary, fontWeight: 'bold' } : { color: colors.cardSubText }]}>
-						Settings
-					</Text>
-				</TouchableOpacity>
+			{/* Bottom Tab Navigation */}
+			<View style={{ flex: 1, backgroundColor: colors.background }}>
+				<NavigationContainer theme={navTheme}>
+					<TabNavigator onLogout={handleLogout} />
+				</NavigationContainer>
 			</View>
 
 			{/* App Footer matching web portal */}
@@ -292,7 +296,6 @@ const styles = StyleSheet.create({
 	safeArea: {
 		flex: 1,
 		backgroundColor: '#f8f9fa',
-		paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight || 0 : 0,
 	},
 	centerContainer: {
 		flex: 1,
@@ -319,36 +322,11 @@ const styles = StyleSheet.create({
 	headerSubtitle: { color: 'rgba(255, 255, 255, 0.85)', fontSize: 12, marginTop: 2, fontFamily: 'Solway_400Regular' },
 	headerRight: { justifyContent: 'center', alignItems: 'flex-end' },
 	userName: { color: '#ffffff', fontWeight: 'bold', fontSize: 14, fontFamily: 'Solway_700Bold' },
-	screenContent: { flex: 1, backgroundColor: '#f8f9fa' },
-	navBar: {
-		flexDirection: 'row',
-		backgroundColor: '#ffffff',
-		borderTopWidth: 1,
-		borderTopColor: '#e2e8f0',
-		paddingVertical: 8,
-		paddingHorizontal: 8,
-		elevation: 8,
-		shadowColor: '#000',
-		shadowOffset: { width: 0, height: -2 },
-		shadowOpacity: 0.05,
-		shadowRadius: 3,
-	},
-	navItem: {
-		flex: 1,
-		alignItems: 'center',
-		paddingVertical: 6,
-		borderRadius: 10,
-	},
-	navItemActive: {
-		backgroundColor: 'rgba(209, 32, 45, 0.08)',
-	},
-	navIcon: { fontSize: 18, marginBottom: 2 },
-	navLabel: { fontSize: 11, color: '#64748b', fontWeight: '600', fontFamily: 'Solway_400Regular' },
-	navLabelActive: { color: '#d1202d', fontWeight: 'bold', fontFamily: 'Solway_700Bold' },
 	appFooter: {
 		backgroundColor: '#212529',
-		paddingVertical: 8,
+		paddingVertical: 7,
 		paddingHorizontal: 12,
+		paddingBottom: Platform.OS === 'ios' ? 14 : 7,
 		alignItems: 'center',
 		justifyContent: 'center',
 	},

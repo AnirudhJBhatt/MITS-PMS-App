@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -18,6 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { getBaseUrl, saveBaseUrl, API_ENDPOINTS } from '../config';
 import { useTheme } from '../ThemeContext';
+import { saveUserToken } from '../authStorage';
 
 const showAlert = (title, message) => {
   if (Platform.OS === 'web') {
@@ -44,6 +45,7 @@ export default function LoginScreen({ onLoginSuccess }) {
   // Server IP Modal Settings
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [serverUrl, setServerUrl] = useState('');
+  const passwordInputRef = useRef(null);
 
   useEffect(() => {
     loadSavedServerUrl();
@@ -101,7 +103,7 @@ export default function LoginScreen({ onLoginSuccess }) {
         await AsyncStorage.setItem('user_session', JSON.stringify(studentData));
         await AsyncStorage.setItem('Stud_ID', studentData.Stud_ID);
         if (data.token) {
-          await AsyncStorage.setItem('userToken', data.token);
+          await saveUserToken(data.token);
         }
 
         onLoginSuccess(studentData);
@@ -201,17 +203,24 @@ export default function LoginScreen({ onLoginSuccess }) {
             value={username}
             onChangeText={(txt) => { setUsername(txt); setErrorMessage(''); }}
             autoCapitalize="characters"
+            autoCorrect={false}
+            returnKeyType="next"
+            onSubmitEditing={() => passwordInputRef.current?.focus()}
+            blurOnSubmit={false}
           />
 
           <Text style={[styles.label, { color: colors.textSub }]}>Password</Text>
           <View style={[styles.passwordContainer, { backgroundColor: colors.inputBackground, borderColor: colors.inputBorder }]}>
             <TextInput
+              ref={passwordInputRef}
               style={[styles.passwordInput, { color: colors.text }]}
               placeholder="Password"
               placeholderTextColor={colors.cardSubText}
               value={password}
               onChangeText={(txt) => { setPassword(txt); setErrorMessage(''); }}
               secureTextEntry={!showPassword}
+              returnKeyType="go"
+              onSubmitEditing={handleLogin}
             />
             <TouchableOpacity
               style={styles.eyeBtn}
@@ -243,7 +252,7 @@ export default function LoginScreen({ onLoginSuccess }) {
       </ScrollView>
 
       {/* Server IP Config Modal */}
-      <Modal visible={settingsVisible} animationType="slide" transparent={true}>
+      <Modal visible={settingsVisible} animationType="slide" transparent={true} onRequestClose={() => setSettingsVisible(false)}>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Text style={[styles.modalTitle, { color: colors.text }]}>Configure API Server URL</Text>
@@ -281,7 +290,7 @@ export default function LoginScreen({ onLoginSuccess }) {
       </Modal>
 
       {/* Forgot Password Modal */}
-      <Modal visible={forgotModalVisible} animationType="fade" transparent={true}>
+      <Modal visible={forgotModalVisible} animationType="fade" transparent={true} onRequestClose={() => setForgotModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Text style={[styles.modalTitle, { color: colors.text }]}>Reset Password</Text>
