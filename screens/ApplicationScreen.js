@@ -59,7 +59,7 @@ export default function ApplicationScreen() {
     } catch (error) {
       console.error('Fetch applications error:', error);
       // print api endpoint in show alert
-      showAlert('Error', 'Unable to fetch your application history sorry.', `${baseUrl}${API_ENDPOINTS.APPLICATIONS}?Stud_ID=${studId}`);
+      showAlert('Error', 'Unable to fetch your application history');
     } finally {
       setLoading(false);
       setRefreshing(false);
